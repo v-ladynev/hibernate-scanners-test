@@ -18,15 +18,15 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 ### Libraries
 
-https://github.com/ronmamo/reflections
+[Reflections](https://github.com/ronmamo/reflections)
 
-https://github.com/lukehutch/fast-classpath-scanner
-https://github.com/rmuller/infomas-asl
-http://code.google.com/p/annovention/
-http://scannotation.sourceforge.net/
-https://github.com/ddopson/java-class-enumerator
+[fast-classpath-scanner](https://github.com/lukehutch/fast-classpath-scanner)
+[infomas-asl](https://github.com/rmuller/infomas-asl)
+[annovention](http://code.google.com/p/annovention)
+[scannotation](http://scannotation.sourceforge.net/)
+[java-class-enumerator](https://github.com/ddopson/java-class-enumerator)
 
-https://github.com/atteo/classindex
+[classindex](https://github.com/atteo/classindex)
 
 
 

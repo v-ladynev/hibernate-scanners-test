@@ -16,5 +16,17 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 [ContextConfig.java](http://svn.apache.org/viewvc/tomcat/trunk/java/org/apache/catalina/startup/ContextConfig.java?annotate=1537835)
 
+### Libraries
+
+https://github.com/ronmamo/reflections
+
+https://github.com/lukehutch/fast-classpath-scanner
+https://github.com/rmuller/infomas-asl
+http://code.google.com/p/annovention/
+http://scannotation.sourceforge.net/
+https://github.com/ddopson/java-class-enumerator
+
+https://github.com/atteo/classindex
+
 
 

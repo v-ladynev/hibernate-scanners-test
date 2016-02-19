@@ -4,7 +4,7 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 ### Links
 
-[Can you find all classes in a package using reflection?](http://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection)
+[Can you find all classes in a package using reflection?] (http://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection)
 
 [How do you find all subclasses of a given class in Java?](http://stackoverflow.com/questions/492184/how-do-you-find-all-subclasses-of-a-given-class-in-java)
 
@@ -21,9 +21,13 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 [Reflections](https://github.com/ronmamo/reflections)
 
 [fast-classpath-scanner](https://github.com/lukehutch/fast-classpath-scanner)
+
 [infomas-asl](https://github.com/rmuller/infomas-asl)
+
 [annovention](http://code.google.com/p/annovention)
+
 [scannotation](http://scannotation.sourceforge.net/)
+
 [java-class-enumerator](https://github.com/ddopson/java-class-enumerator)
 
 [classindex](https://github.com/atteo/classindex)

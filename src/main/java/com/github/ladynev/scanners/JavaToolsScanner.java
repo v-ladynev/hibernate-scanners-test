@@ -1,11 +1,10 @@
 package com.github.ladynev.scanners;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.Entity;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
@@ -19,14 +18,13 @@ import org.hibernate.bytecode.spi.ByteCodeHelper;
  */
 public class JavaToolsScanner implements IScanner {
 
-    private final ClassLoader loader;
+    private final ClassLoader parent = Thread.currentThread().getContextClassLoader();
 
-    public JavaToolsScanner() {
-        loader = Thread.currentThread().getContextClassLoader();
-    }
+    private final ClassLoaderWrapper loader = new ClassLoaderWrapper(parent);
 
     @Override
-    public List<Class<?>> scan(String packageToScan, List<Class<?>> result) throws IOException {
+    public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
+        List<Class<?>> result = new ArrayList<Class<?>>();
 
         StandardJavaFileManager fileManager = ToolProvider.getSystemJavaCompiler()
                 .getStandardFileManager(null, null, null);
@@ -35,35 +33,39 @@ public class JavaToolsScanner implements IScanner {
                 packageToScan, Collections.singleton(JavaFileObject.Kind.CLASS), true);
 
         for (JavaFileObject file : files) {
-
-            Class<?> clazz = null;
-            try {
-                clazz = toClass(null, file.openInputStream());
-            } catch (ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            if (clazz.isAnnotationPresent(Entity.class)) {
+            Class<?> clazz = toClass(file);
+            if (accept.clazz(clazz)) {
                 result.add(clazz);
             }
-
         }
 
         return result;
     }
 
-    private Class<?> toClass(String name, InputStream stream) throws IOException,
-    ClassNotFoundException {
-        final byte[] bytecode = ByteCodeHelper.readByteCode(stream);
+    private Class<?> toClass(JavaFileObject file) throws IOException, ClassNotFoundException {
+        byte[] bytecode = ByteCodeHelper.readByteCode(file.openInputStream());
 
-        Class<?> result = new ClassLoader(loader) {
+        Class<?> result = loader.getClass(null, bytecode);
 
-            public Class<?> getClass(String name) throws ClassNotFoundException {
-                return defineClass(name, bytecode, 0, bytecode.length);
-            }
-        }.getClass(name);
+        return parent.loadClass(result.getName());
+    }
 
-        return loader.loadClass(result.getName());
+    private static class ClassLoaderWrapper extends ClassLoader {
+
+        public ClassLoaderWrapper(ClassLoader parent) {
+            super(parent);
+        }
+
+        public Class<?> getClass(String name, byte[] bytecode) throws ClassNotFoundException {
+            return defineClass(name, bytecode, 0, bytecode.length);
+        }
+
+        @Override
+        protected synchronized Class<?> loadClass(String name, boolean resolve)
+                throws ClassNotFoundException {
+            return super.loadClass(name, resolve);
+        }
+
     }
 
 }

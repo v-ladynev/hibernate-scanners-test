@@ -8,6 +8,12 @@ import java.util.List;
  */
 public interface IScanner {
 
-    List<Class<?>> scan(String packageToScan, List<Class<?>> result) throws Exception;
+    List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception;
+
+    public interface IAccept {
+
+        boolean clazz(Class<?> toCheck) throws Exception;
+
+    }
 
 }

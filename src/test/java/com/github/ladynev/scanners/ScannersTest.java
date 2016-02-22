@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+
 import org.junit.Test;
 
+import com.github.ladynev.scanners.IScanner.IAccept;
 import com.github.ladynev.scanners.persistent.FirstRootEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity.NestedEntity;
 import com.github.ladynev.scanners.persistent.NotEntity;
@@ -27,9 +30,14 @@ public class ScannersTest {
         assertClasses(scan(new GuavaScanner(), ROOT_PACKAGE));
     }
 
-    @Test
+    // @Test
     public void javaTool() throws Exception {
         assertClasses(scan(new JavaToolsScanner(), ROOT_PACKAGE));
+    }
+
+    @Test
+    public void customScanner() throws Exception {
+        assertClasses(scan(new CustomScanner(), ROOT_PACKAGE));
     }
 
     private void assertClasses(List<Class<?>> classes) {
@@ -40,10 +48,14 @@ public class ScannersTest {
     public static List<Class<?>> scan(IScanner scanner, String... packages) throws Exception {
         List<Class<?>> result = new ArrayList<Class<?>>();
         for (String packageToScan : packages) {
-            scanner.scan(packageToScan, result);
+            result.addAll(scanner.scan(packageToScan, new IAccept() {
+                @Override
+                public boolean clazz(Class<?> toCheck) throws Exception {
+                    return toCheck.isAnnotationPresent(Entity.class);
+                }
+            }));
         }
 
         return result;
     }
-
 }

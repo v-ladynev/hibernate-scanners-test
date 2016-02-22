@@ -1,9 +1,7 @@
 package com.github.ladynev.scanners;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Entity;
 
 import com.google.common.reflect.ClassPath;
 
@@ -13,18 +11,15 @@ import com.google.common.reflect.ClassPath;
  */
 public class GuavaScanner implements IScanner {
 
-    private final ClassLoader loader;
-
-    public GuavaScanner() {
-        loader = Thread.currentThread().getContextClassLoader();
-    }
+    private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
     @Override
-    public List<Class<?>> scan(String packageToScan, List<Class<?>> result) throws IOException {
+    public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
+        List<Class<?>> result = new ArrayList<Class<?>>();
         for (final ClassPath.ClassInfo info : ClassPath.from(loader).getAllClasses()) {
             if (info.getName().startsWith(packageToScan)) {
                 Class<?> clazz = info.load();
-                if (clazz.isAnnotationPresent(Entity.class)) {
+                if (accept.clazz(clazz)) {
                     result.add(clazz);
                 }
             }

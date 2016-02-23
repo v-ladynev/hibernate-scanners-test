@@ -35,9 +35,21 @@ public class ScannersTest {
         assertClasses(scan(new JavaToolsScanner(), ROOT_PACKAGE));
     }
 
-    @Test
+    // @Test
     public void customScanner() throws Exception {
         assertClasses(scan(new CustomScanner(), ROOT_PACKAGE));
+    }
+
+    // @Test
+    public void fastClasspathScannerLibrary() throws Exception {
+        // TODO add other packages
+        List<Class<?>> classes = new FastClasspathScannerLibrary().scan(ROOT_PACKAGE);
+        assertClasses(classes);
+    }
+
+    @Test
+    public void infomasAslLibrary() throws Exception {
+        assertClasses(scan(new InfomasAslLibrary(), ROOT_PACKAGE));
     }
 
     private void assertClasses(List<Class<?>> classes) {

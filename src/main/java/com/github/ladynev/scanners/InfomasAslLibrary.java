@@ -18,31 +18,29 @@ public class InfomasAslLibrary implements IScanner {
 
     @Override
     public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
-        final List<Class<?>> result = new ArrayList<Class<?>>();
-
-        new AnnotationDetector(new TypeReporter() {
-            @Override
-            public Class<? extends Annotation>[] annotations() {
-                return new Class[] { Entity.class };
-            }
-
-            @Override
-            public void reportTypeAnnotation(Class<? extends Annotation> annotation,
-                    String className) {
-                result.add(toClass(className));
-            }
-
-        }).detect(packageToScan);
-
-        return result;
+        EntityReporter reporter = new EntityReporter();
+        new AnnotationDetector(reporter).detect(packageToScan);
+        return reporter.getResult();
     }
 
-    private static Class<?> toClass(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException(ex);
+    private static class EntityReporter implements TypeReporter {
+
+        final List<Class<?>> result = new ArrayList<Class<?>>();
+
+        public List<Class<?>> getResult() {
+            return result;
         }
+
+        @Override
+        public Class<? extends Annotation>[] annotations() {
+            return new Class[] { Entity.class };
+        }
+
+        @Override
+        public void reportTypeAnnotation(Class<? extends Annotation> annotation, String className) {
+            result.add(ClassUtils.toClass(className));
+        }
+
     }
 
 }

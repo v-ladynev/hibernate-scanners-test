@@ -4,7 +4,7 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 ### Links
 
-[Can you find all classes in a package using reflection?] (http://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection)
+[Can you find all classes in a package using reflection?](http://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection)
 
 [How do you find all subclasses of a given class in Java?](http://stackoverflow.com/questions/492184/how-do-you-find-all-subclasses-of-a-given-class-in-java)
 
@@ -14,23 +14,31 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 [Hibernate Mapping Package](http://stackoverflow.com/questions/1413190/hibernate-mapping-package)
 
-[ContextConfig.java](http://svn.apache.org/viewvc/tomcat/trunk/java/org/apache/catalina/startup/ContextConfig.java?annotate=1537835)
-
 ### Libraries
+[google/guava](https://github.com/google/guava) (using ClassPath class)
+<br /><br />
 
-[Reflections](https://github.com/ronmamo/reflections)
-
-[fast-classpath-scanner](https://github.com/lukehutch/fast-classpath-scanner)
-
-[infomas-asl](https://github.com/rmuller/infomas-asl)
-
-[annovention](http://code.google.com/p/annovention)
+[ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`)
 
 [scannotation](http://scannotation.sourceforge.net/)
+<br/><br/>
 
-[java-class-enumerator](https://github.com/ddopson/java-class-enumerator)
+[ngocdaothanh/annovention](https://github.com/ngocdaothanh/annovention) (improved version of `annovention`)
 
-[classindex](https://github.com/atteo/classindex)
+[annovention](http://code.google.com/p/annovention)
+<br /><br />
 
+[lukehutch/fast-classpath-scanner](https://github.com/lukehutch/fast-classpath-scanner)
+
+[rmuller/infomas-asl](https://github.com/rmuller/infomas-asl)
+
+[ddopson/java-class-enumerator](https://github.com/ddopson/java-class-enumerator)
+<br/><br/>
+
+[classindex](https://github.com/atteo/classindex) (It uses indexes of classes are generated at compile-time)
+
+[JBoss MC Scanning lib](https://developer.jboss.org/wiki/MCScanninglib)
+
+[ContextConfig.java](http://svn.apache.org/viewvc/tomcat/trunk/java/org/apache/catalina/startup/ContextConfig.java?annotate=1537835)  from Tomcat
 
 

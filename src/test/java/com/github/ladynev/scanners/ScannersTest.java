@@ -26,7 +26,7 @@ public class ScannersTest {
     private static final String ROOT_PACKAGE = "com.github.ladynev.scanners.persistent";
 
     // @Test
-    public void guava() throws Exception {
+    public void guavaLibrary() throws Exception {
         assertClasses(scan(new GuavaScanner(), ROOT_PACKAGE));
     }
 
@@ -47,9 +47,24 @@ public class ScannersTest {
         assertClasses(classes);
     }
 
-    @Test
+    // @Test
     public void infomasAslLibrary() throws Exception {
         assertClasses(scan(new InfomasAslLibrary(), ROOT_PACKAGE));
+    }
+
+    // @Test
+    public void classEnumerator() throws Exception {
+        assertClasses(scan(new ClassEnumeratorScanner(), ROOT_PACKAGE));
+    }
+
+    // @Test
+    public void reflectionsLibrary() throws Exception {
+        assertClasses(scan(new ReflectionsScanner(), ROOT_PACKAGE));
+    }
+
+    @Test
+    public void annoventionsLibrary() throws Exception {
+        assertClasses(scan(new AnnoventionLibrary(), ROOT_PACKAGE));
     }
 
     private void assertClasses(List<Class<?>> classes) {

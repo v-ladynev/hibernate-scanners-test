@@ -15,24 +15,24 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 [Hibernate Mapping Package](http://stackoverflow.com/questions/1413190/hibernate-mapping-package)
 
 ### Libraries
-[google/guava](https://github.com/google/guava) (using ClassPath class) — [GuavaScanner.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaScanner.java)
+[google/guava](https://github.com/google/guava) (using ClassPath class) — [GuavaLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaLibrary.java)
 <br /><br />
 
-[ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`) — [ReflectionsScanner.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/ReflectionsScanner.java)
+[ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`) — [ReflectionsLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/ReflectionsLibrary.java)
 
 [scannotation](http://scannotation.sourceforge.net/)
 <br/><br/>
 
-[ngocdaothanh/annovention](https://github.com/ngocdaothanh/annovention) (improved version of `annovention`)
+[ngocdaothanh/annovention](https://github.com/ngocdaothanh/annovention) (improved version of `annovention`) — [AnnoventionLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/AnnoventionLibrary.java)
 
 [annovention](http://code.google.com/p/annovention)
 <br /><br />
 
-[lukehutch/fast-classpath-scanner](https://github.com/lukehutch/fast-classpath-scanner)
+[lukehutch/fast-classpath-scanner](https://github.com/lukehutch/fast-classpath-scanner) — [FastClasspathScannerLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/FastClasspathScannerLibrary.java)
 
-[rmuller/infomas-asl](https://github.com/rmuller/infomas-asl)
+[rmuller/infomas-asl](https://github.com/rmuller/infomas-asl) — [InfomasAslLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/InfomasAslLibrary.java)
 
-[ddopson/java-class-enumerator](https://github.com/ddopson/java-class-enumerator)
+[ddopson/java-class-enumerator](https://github.com/ddopson/java-class-enumerator) — [ClassEnumeratorScanner.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/ClassEnumeratorScanner.java)
 <br/><br/>
 
 [classindex](https://github.com/atteo/classindex) (It uses indexes of classes are generated at compile-time)

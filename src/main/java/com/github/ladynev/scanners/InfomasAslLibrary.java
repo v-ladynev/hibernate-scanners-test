@@ -19,7 +19,7 @@ import eu.infomas.annotation.AnnotationDetector.TypeReporter;
 public class InfomasAslLibrary implements IScanner {
 
     @Override
-    public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
+    public List<Class<?>> scan(String packageToScan) throws Exception {
         EntityReporter reporter = new EntityReporter();
         new AnnotationDetector(reporter).detect(packageToScan);
         return reporter.getResult();

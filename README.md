@@ -15,8 +15,10 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 [Hibernate Mapping Package](http://stackoverflow.com/questions/1413190/hibernate-mapping-package)
 
 ### Libraries
-[google/guava](https://github.com/google/guava) (using ClassPath class) — [GuavaLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaLibrary.java)
+[google/guava](https://github.com/google/guava) (using `ClassPath`) — [GuavaLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaLibrary.java)
 <br /><br />
+
+[Spring Context](http://mvnrepository.com/artifact/org.springframework/spring-context) (using `ClassPathScanningCandidateComponentProvider`)
 
 [ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`) — [ReflectionsLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/ReflectionsLibrary.java)
 

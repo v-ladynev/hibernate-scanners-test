@@ -5,11 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-
 import org.junit.Test;
 
-import com.github.ladynev.scanners.IScanner.IAccept;
 import com.github.ladynev.scanners.persistent.FirstRootEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity.NestedEntity;
 import com.github.ladynev.scanners.persistent.NotEntity;
@@ -30,6 +27,11 @@ public class ScannersTest {
         assertClasses(scan(new GuavaLibrary(), ROOT_PACKAGE));
     }
 
+    @Test
+    public void springLibrary() throws Exception {
+        assertClasses(scan(new SpringLibrary(), ROOT_PACKAGE));
+    }
+
     // @Test
     public void javaTool() throws Exception {
         assertClasses(scan(new JavaToolsScanner(), ROOT_PACKAGE));
@@ -42,9 +44,7 @@ public class ScannersTest {
 
     // @Test
     public void fastClasspathScannerLibrary() throws Exception {
-        // TODO add other packages
-        List<Class<?>> classes = new FastClasspathScannerLibrary().scan(ROOT_PACKAGE);
-        assertClasses(classes);
+        assertClasses(scan(new FastClasspathScannerLibrary(), ROOT_PACKAGE));
     }
 
     // @Test
@@ -62,7 +62,7 @@ public class ScannersTest {
         assertClasses(scan(new ReflectionsLibrary(), ROOT_PACKAGE));
     }
 
-    @Test
+    // @Test
     public void annoventionsLibrary() throws Exception {
         assertClasses(scan(new AnnoventionLibrary(), ROOT_PACKAGE));
     }
@@ -75,12 +75,7 @@ public class ScannersTest {
     public static List<Class<?>> scan(IScanner scanner, String... packages) throws Exception {
         List<Class<?>> result = new ArrayList<Class<?>>();
         for (String packageToScan : packages) {
-            result.addAll(scanner.scan(packageToScan, new IAccept() {
-                @Override
-                public boolean clazz(Class<?> toCheck) throws Exception {
-                    return toCheck.isAnnotationPresent(Entity.class);
-                }
-            }));
+            result.addAll(scanner.scan(packageToScan));
         }
 
         return result;

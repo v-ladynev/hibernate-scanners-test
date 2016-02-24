@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.Entity;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
@@ -23,7 +24,7 @@ public class JavaToolsScanner implements IScanner {
     private final ClassLoaderWrapper loader = new ClassLoaderWrapper(parent);
 
     @Override
-    public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
+    public List<Class<?>> scan(String packageToScan) throws Exception {
         List<Class<?>> result = new ArrayList<Class<?>>();
 
         StandardJavaFileManager fileManager = ToolProvider.getSystemJavaCompiler()
@@ -34,7 +35,7 @@ public class JavaToolsScanner implements IScanner {
 
         for (JavaFileObject file : files) {
             Class<?> clazz = toClass(file);
-            if (accept.clazz(clazz)) {
+            if (clazz.isAnnotationPresent(Entity.class)) {
                 result.add(clazz);
             }
         }

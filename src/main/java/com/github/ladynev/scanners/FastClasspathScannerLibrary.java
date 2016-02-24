@@ -13,8 +13,9 @@ import javax.persistence.Entity;
  *
  * @author V.Ladynev
  */
-public class FastClasspathScannerLibrary {
+public class FastClasspathScannerLibrary implements IScanner {
 
+    @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
         final List<Class<?>> result = new ArrayList<Class<?>>();
 

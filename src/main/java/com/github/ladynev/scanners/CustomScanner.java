@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.persistence.Entity;
+
 import sun.net.www.protocol.file.FileURLConnection;
 
 /**
@@ -23,11 +25,8 @@ public class CustomScanner implements IScanner {
 
     private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-    private IAccept accept;
-
     @Override
-    public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
-        this.accept = accept;
+    public List<Class<?>> scan(String packageToScan) throws Exception {
         return getClassesForPackage(packageToScan);
     }
 
@@ -65,7 +64,7 @@ public class CustomScanner implements IScanner {
                         Class<?> clazz = Class.forName(pckgname + '.'
                                 + file.substring(0, file.length() - 6));
 
-                        if (accept.clazz(clazz)) {
+                        if (check(clazz)) {
                             result.add(clazz);
                         }
                     } catch (final NoClassDefFoundError e) {
@@ -94,13 +93,17 @@ public class CustomScanner implements IScanner {
 
                 if (name.contains(pckgname)) {
                     Class<?> clazz = Class.forName(name);
-                    if (accept.clazz(clazz)) {
+                    if (check(clazz)) {
                         result.add(clazz);
                     }
                 }
             }
         }
 
+    }
+
+    private static boolean check(Class<?> clazz) {
+        return clazz.isAnnotationPresent(Entity.class);
     }
 
 }

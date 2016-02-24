@@ -18,15 +18,15 @@ import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
 public class AnnoventionLibrary implements IScanner {
 
     @Override
-    public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {
+    public List<Class<?>> scan(String packageToScan) throws Exception {
         EntityListener listener = new EntityListener();
 
         Discoverer discoverer = new ClasspathDiscoverer();
         discoverer.addAnnotationListener(listener);
 
-        boolean classes = true;
-        boolean visible = true;
-        boolean invisible = true;
+        final boolean classes = true;
+        final boolean visible = true;
+        final boolean invisible = true;
         discoverer.discover(classes, false, false, visible, invisible);
 
         return listener.getResult();

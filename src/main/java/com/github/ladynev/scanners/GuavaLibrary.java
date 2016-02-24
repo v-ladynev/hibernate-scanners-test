@@ -6,10 +6,11 @@ import java.util.List;
 import com.google.common.reflect.ClassPath;
 
 /**
+ * https://github.com/google/guava
  *
  * @author V.Ladynev
  */
-public class GuavaScanner implements IScanner {
+public class GuavaLibrary implements IScanner {
 
     private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 

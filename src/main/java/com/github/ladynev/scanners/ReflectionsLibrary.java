@@ -9,10 +9,11 @@ import javax.persistence.Entity;
 import org.reflections.Reflections;
 
 /**
+ * https://github.com/ronmamo/reflections
  *
  * @author V.Ladynev
  */
-public class ReflectionsScanner implements IScanner {
+public class ReflectionsLibrary implements IScanner {
 
     @Override
     public List<Class<?>> scan(String packageToScan, IAccept accept) throws Exception {

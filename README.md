@@ -15,10 +15,10 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 [Hibernate Mapping Package](http://stackoverflow.com/questions/1413190/hibernate-mapping-package)
 
 ### Libraries
-[google/guava](https://github.com/google/guava) (using ClassPath class)
+[google/guava](https://github.com/google/guava) (using ClassPath class) — [GuavaScanner.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaScanner.java)
 <br /><br />
 
-[ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`)
+[ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`) — [ReflectionsScanner.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/ReflectionsScanner.java)
 
 [scannotation](http://scannotation.sourceforge.net/)
 <br/><br/>
@@ -39,6 +39,6 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 [JBoss MC Scanning lib](https://developer.jboss.org/wiki/MCScanninglib)
 
-[ContextConfig.java](http://svn.apache.org/viewvc/tomcat/trunk/java/org/apache/catalina/startup/ContextConfig.java?annotate=1537835)  from Tomcat
+[ContextConfig.java](http://svn.apache.org/viewvc/tomcat/trunk/java/org/apache/catalina/startup/ContextConfig.java?annotate=1537835)  (from Tomcat)
 
 

@@ -9,7 +9,7 @@ import java.util.List;
 import javax.persistence.Entity;
 
 /**
- * https://github.com/rmuller/infomas-asl
+ * https://github.com/lukehutch/fast-classpath-scanner
  *
  * @author V.Ladynev
  */

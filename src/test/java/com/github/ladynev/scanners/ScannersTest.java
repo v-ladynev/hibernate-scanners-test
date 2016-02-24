@@ -27,7 +27,7 @@ public class ScannersTest {
 
     // @Test
     public void guavaLibrary() throws Exception {
-        assertClasses(scan(new GuavaScanner(), ROOT_PACKAGE));
+        assertClasses(scan(new GuavaLibrary(), ROOT_PACKAGE));
     }
 
     // @Test
@@ -59,7 +59,7 @@ public class ScannersTest {
 
     // @Test
     public void reflectionsLibrary() throws Exception {
-        assertClasses(scan(new ReflectionsScanner(), ROOT_PACKAGE));
+        assertClasses(scan(new ReflectionsLibrary(), ROOT_PACKAGE));
     }
 
     @Test

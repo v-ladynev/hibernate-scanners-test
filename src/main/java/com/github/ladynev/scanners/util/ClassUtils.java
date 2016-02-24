@@ -1,4 +1,4 @@
-package com.github.ladynev.scanners;
+package com.github.ladynev.scanners.util;
 
 /**
  *

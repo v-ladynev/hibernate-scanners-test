@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
+import com.github.ladynev.scanners.util.ClassUtils;
 import com.impetus.annovention.ClasspathDiscoverer;
 import com.impetus.annovention.Discoverer;
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;

@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
+import com.github.ladynev.scanners.util.ClassUtils;
+
 import eu.infomas.annotation.AnnotationDetector;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
 

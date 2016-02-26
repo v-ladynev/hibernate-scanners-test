@@ -4,9 +4,8 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-
 import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannerAdapter;
 
 import eu.infomas.annotation.AnnotationDetector;
 import eu.infomas.annotation.AnnotationDetector.TypeReporter;
@@ -16,16 +15,22 @@ import eu.infomas.annotation.AnnotationDetector.TypeReporter;
  *
  * @author V.Ladynev
  */
-public class InfomasAslLibrary implements IScanner {
+public class InfomasAslLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
+        replaceContextClassLoader();
+
         EntityReporter reporter = new EntityReporter();
         new AnnotationDetector(reporter).detect(packageToScan);
-        return reporter.getResult();
+        List<Class<?>> result = reporter.getResult();
+
+        backContextClassLoader();
+
+        return result;
     }
 
-    private static class EntityReporter implements TypeReporter {
+    private class EntityReporter implements TypeReporter {
 
         final List<Class<?>> result = new ArrayList<Class<?>>();
 
@@ -35,12 +40,12 @@ public class InfomasAslLibrary implements IScanner {
 
         @Override
         public Class<? extends Annotation>[] annotations() {
-            return new Class[] { Entity.class };
+            return new Class[] { InfomasAslLibrary.this.getAnnotation() };
         }
 
         @Override
         public void reportTypeAnnotation(Class<? extends Annotation> annotation, String className) {
-            result.add(ClassUtils.toClass(className));
+            result.add(ClassUtils.toClass(className, InfomasAslLibrary.this.getLoader()));
         }
 
     }

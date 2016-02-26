@@ -6,26 +6,30 @@ import io.github.lukehutch.fastclasspathscanner.matchprocessor.ClassAnnotationMa
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
+import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
  * https://github.com/lukehutch/fast-classpath-scanner
  *
  * @author V.Ladynev
  */
-public class FastClasspathScannerLibrary implements IScanner {
+public class FastClasspathScannerLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
         final List<Class<?>> result = new ArrayList<Class<?>>();
 
+        replaceContextClassLoader();
+
         new FastClasspathScanner(new String[] { packageToScan }).matchClassesWithAnnotation(
-                Entity.class, new ClassAnnotationMatchProcessor() {
+                getAnnotation(), new ClassAnnotationMatchProcessor() {
                     @Override
                     public void processMatch(Class<?> matchingClass) {
                         result.add(matchingClass);
                     }
                 }).scan();
+
+        backContextClassLoader();
 
         return result;
     }

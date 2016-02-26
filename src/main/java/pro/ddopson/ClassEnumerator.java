@@ -9,22 +9,58 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.github.ladynev.scanners.util.ClassUtils;
+
 /**
  *
  * https://github.com/ddopson/java-class-enumerator
  */
 public class ClassEnumerator {
+
+    private ClassLoader loader = ClassLoader.getSystemClassLoader();
+
     private static void log(String msg) {
         System.out.println("ClassDiscovery: " + msg);
     }
 
-    private static Class<?> loadClass(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Unexpected ClassNotFoundException loading class '"
-                    + className + "'");
+    public void setLoader(ClassLoader loader) {
+        this.loader = loader;
+    }
+
+    private Class<?> loadClass(String className) {
+        return ClassUtils.toClass(className, loader);
+    }
+
+    /**
+     * Give a package this method returns all classes contained in that package
+     *
+     * @param pkg
+     */
+    public List<Class<?>> getClassesForPackage(String packageToScan) {
+        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+
+        // Get name of package and turn it to a relative path
+        String pkgname = packageToScan;
+        String relPath = pkgname.replace('.', '/');
+
+        // Get a File object for the package
+        URL resource = loader.getResource(relPath);
+
+        // If we can't find the resource we throw an exception
+        if (resource == null) {
+            throw new RuntimeException("Unexpected problem: No resource for " + relPath);
         }
+
+        log("Package: '" + pkgname + "' becomes Resource: '" + resource.toString() + "'");
+
+        // If the resource is a jar get all classes from jar
+        if (resource.toString().startsWith("jar:")) {
+            classes.addAll(processJarfile(resource, pkgname));
+        } else {
+            classes.addAll(processDirectory(new File(resource.getPath()), pkgname));
+        }
+
+        return classes;
     }
 
     /**
@@ -34,7 +70,7 @@ public class ClassEnumerator {
      * @param pkgname
      * @return Classes within Directory with package name
      */
-    public static List<Class<?>> processDirectory(File directory, String pkgname) {
+    public List<Class<?>> processDirectory(File directory, String pkgname) {
 
         ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
@@ -72,7 +108,7 @@ public class ClassEnumerator {
      * @param resource
      * @param pkgname
      */
-    public static List<Class<?>> processJarfile(URL resource, String pkgname) {
+    public List<Class<?>> processJarfile(URL resource, String pkgname) {
         List<Class<?>> classes = new ArrayList<Class<?>>();
 
         // Turn package name to relative path to jar file
@@ -114,35 +150,4 @@ public class ClassEnumerator {
         return classes;
     }
 
-    /**
-     * Give a package this method returns all classes contained in that package
-     *
-     * @param pkg
-     */
-    public static List<Class<?>> getClassesForPackage(String packageToScan) {
-        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-
-        // Get name of package and turn it to a relative path
-        String pkgname = packageToScan;
-        String relPath = pkgname.replace('.', '/');
-
-        // Get a File object for the package
-        URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
-
-        // If we can't find the resource we throw an exception
-        if (resource == null) {
-            throw new RuntimeException("Unexpected problem: No resource for " + relPath);
-        }
-
-        log("Package: '" + pkgname + "' becomes Resource: '" + resource.toString() + "'");
-
-        // If the resource is a jar get all classes from jar
-        if (resource.toString().startsWith("jar:")) {
-            classes.addAll(processJarfile(resource, pkgname));
-        } else {
-            classes.addAll(processDirectory(new File(resource.getPath()), pkgname));
-        }
-
-        return classes;
-    }
 }

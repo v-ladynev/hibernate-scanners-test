@@ -3,23 +3,28 @@ package com.github.ladynev.scanners;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-
 import pro.ddopson.ClassEnumerator;
+
+import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
  *
  * @author V.Ladynev
  */
-public class ClassEnumeratorScanner implements IScanner {
+public class ClassEnumeratorScanner extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
         List<Class<?>> result = new ArrayList<Class<?>>();
 
-        List<Class<?>> discoveredClasses = ClassEnumerator.getClassesForPackage(packageToScan);
+        ClassEnumerator enumerator = new ClassEnumerator();
+        if (isTuned()) {
+            enumerator.setLoader(getLoader());
+        }
+
+        List<Class<?>> discoveredClasses = enumerator.getClassesForPackage(packageToScan);
         for (Class<?> clazz : discoveredClasses) {
-            if (clazz.isAnnotationPresent(Entity.class)) {
+            if (isAnnotationPresent(clazz)) {
                 result.add(clazz);
             }
         }

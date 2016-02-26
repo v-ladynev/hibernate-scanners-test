@@ -4,19 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Entity;
-
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
  *
  * @author V.Ladynev
  */
-public class SpringLibrary implements IScanner {
+public class SpringLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
@@ -25,11 +25,12 @@ public class SpringLibrary implements IScanner {
         final boolean useDefaultFilters = false;
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
                 useDefaultFilters);
-        provider.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
+        provider.addIncludeFilter(new AnnotationTypeFilter(getAnnotation()));
+        provider.setResourceLoader(new DefaultResourceLoader(getLoader()));
 
         Set<BeanDefinition> classes = provider.findCandidateComponents(packageToScan);
         for (BeanDefinition bean : classes) {
-            result.add(ClassUtils.toClass(bean.getBeanClassName()));
+            result.add(ClassUtils.toClass(bean.getBeanClassName(), getLoader()));
         }
 
         return result;

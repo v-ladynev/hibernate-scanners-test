@@ -3,8 +3,7 @@ package com.github.ladynev.scanners;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-
+import com.github.ladynev.scanners.util.ScannerAdapter;
 import com.google.common.reflect.ClassPath;
 
 /**
@@ -12,17 +11,15 @@ import com.google.common.reflect.ClassPath;
  *
  * @author V.Ladynev
  */
-public class GuavaLibrary implements IScanner {
-
-    private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+public class GuavaLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
         List<Class<?>> result = new ArrayList<Class<?>>();
-        for (final ClassPath.ClassInfo info : ClassPath.from(loader).getAllClasses()) {
+        for (final ClassPath.ClassInfo info : ClassPath.from(getLoader()).getAllClasses()) {
             if (info.getName().startsWith(packageToScan)) {
                 Class<?> clazz = info.load();
-                if (clazz.isAnnotationPresent(Entity.class)) {
+                if (isAnnotationPresent(clazz)) {
                     result.add(clazz);
                 }
             }

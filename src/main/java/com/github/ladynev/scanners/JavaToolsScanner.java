@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.Entity;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
@@ -13,18 +12,20 @@ import javax.tools.ToolProvider;
 
 import org.hibernate.bytecode.spi.ByteCodeHelper;
 
+import com.github.ladynev.scanners.util.ScannerAdapter;
+
 /**
  *
  * @author V.Ladynev
  */
-public class JavaToolsScanner implements IScanner {
+public class JavaToolsScanner extends ScannerAdapter {
 
-    private final ClassLoader parent = Thread.currentThread().getContextClassLoader();
-
-    private final ClassLoaderWrapper loader = new ClassLoaderWrapper(parent);
+    private ClassLoaderWrapper loader;
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
+        loader = new ClassLoaderWrapper(getLoader());
+
         List<Class<?>> result = new ArrayList<Class<?>>();
 
         StandardJavaFileManager fileManager = ToolProvider.getSystemJavaCompiler()
@@ -35,7 +36,7 @@ public class JavaToolsScanner implements IScanner {
 
         for (JavaFileObject file : files) {
             Class<?> clazz = toClass(file);
-            if (clazz.isAnnotationPresent(Entity.class)) {
+            if (isAnnotationPresent(clazz)) {
                 result.add(clazz);
             }
         }
@@ -48,7 +49,7 @@ public class JavaToolsScanner implements IScanner {
 
         Class<?> result = loader.getClass(null, bytecode);
 
-        return parent.loadClass(result.getName());
+        return loader.getParent().loadClass(result.getName());
     }
 
     private static class ClassLoaderWrapper extends ClassLoader {

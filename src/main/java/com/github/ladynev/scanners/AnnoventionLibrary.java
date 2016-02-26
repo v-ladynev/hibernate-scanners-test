@@ -3,9 +3,8 @@ package com.github.ladynev.scanners;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-
 import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannerAdapter;
 import com.impetus.annovention.ClasspathDiscoverer;
 import com.impetus.annovention.Discoverer;
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
@@ -15,10 +14,12 @@ import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
  *
  * @author V.Ladynev
  */
-public class AnnoventionLibrary implements IScanner {
+public class AnnoventionLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
+        replaceContextClassLoader();
+
         EntityListener listener = new EntityListener();
 
         Discoverer discoverer = new ClasspathDiscoverer();
@@ -29,10 +30,14 @@ public class AnnoventionLibrary implements IScanner {
         final boolean invisible = true;
         discoverer.discover(classes, false, false, visible, invisible);
 
-        return listener.getResult();
+        List<Class<?>> result = listener.getResult();
+
+        backContextClassLoader();
+
+        return result;
     }
 
-    private static class EntityListener implements ClassAnnotationDiscoveryListener {
+    private class EntityListener implements ClassAnnotationDiscoveryListener {
 
         final List<Class<?>> result = new ArrayList<Class<?>>();
 
@@ -42,12 +47,12 @@ public class AnnoventionLibrary implements IScanner {
 
         @Override
         public void discovered(String clazz, String annotation) {
-            result.add(ClassUtils.toClass(clazz));
+            result.add(ClassUtils.toClass(clazz, AnnoventionLibrary.this.getLoader()));
         }
 
         @Override
         public String[] supportedAnnotations() {
-            return new String[] { Entity.class.getName() };
+            return new String[] { AnnoventionLibrary.this.getAnnotation().getName() };
         }
 
     }

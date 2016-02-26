@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.persistence.Entity;
-
 import sun.net.www.protocol.file.FileURLConnection;
+
+import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
  *
@@ -21,9 +22,9 @@ import sun.net.www.protocol.file.FileURLConnection;
  *
  * @author V.Ladynev
  */
-public class CustomScanner implements IScanner {
+public class CustomScanner extends ScannerAdapter {
 
-    private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    ArrayList<Class<?>> result = new ArrayList<Class<?>>();
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
@@ -31,27 +32,23 @@ public class CustomScanner implements IScanner {
     }
 
     private ArrayList<Class<?>> getClassesForPackage(String pckgname) throws Exception {
-        final ArrayList<Class<?>> result = new ArrayList<Class<?>>();
 
-        final Enumeration<URL> resources = loader.getResources(pckgname.replace('.', '/'));
+        final Enumeration<URL> resources = getLoader().getResources(pckgname.replace('.', '/'));
 
         for (URL url = null; resources.hasMoreElements() && (url = resources.nextElement()) != null;) {
-
             URLConnection connection = url.openConnection();
 
             if (connection instanceof JarURLConnection) {
-                checkJarFile((JarURLConnection) connection, pckgname, result);
+                checkJarFile((JarURLConnection) connection, pckgname);
             } else if (connection instanceof FileURLConnection) {
-                checkDirectory(new File(URLDecoder.decode(url.getPath(), "UTF-8")), pckgname,
-                        result);
+                checkDirectory(new File(URLDecoder.decode(url.getPath(), "UTF-8")), pckgname);
             }
         }
 
         return result;
     }
 
-    private void checkDirectory(File directory, String pckgname, ArrayList<Class<?>> result)
-            throws Exception {
+    private void checkDirectory(File directory, String pckgname) throws Exception {
         File tmpDirectory;
 
         if (directory.exists() && directory.isDirectory()) {
@@ -60,26 +57,19 @@ public class CustomScanner implements IScanner {
             for (final String file : files) {
                 if (file.endsWith(".class")) {
                     try {
-
-                        Class<?> clazz = Class.forName(pckgname + '.'
-                                + file.substring(0, file.length() - 6));
-
-                        if (check(clazz)) {
-                            result.add(clazz);
-                        }
+                        addClass(pckgname + '.' + file.substring(0, file.length() - 6));
                     } catch (final NoClassDefFoundError e) {
                         // do nothing. this class hasn't been found by the
                         // loader, and we don't care.
                     }
                 } else if ((tmpDirectory = new File(directory, file)).isDirectory()) {
-                    checkDirectory(tmpDirectory, pckgname + "." + file, result);
+                    checkDirectory(tmpDirectory, pckgname + "." + file);
                 }
             }
         }
     }
 
-    private void checkJarFile(JarURLConnection connection, String pckgname,
-            ArrayList<Class<?>> result) throws Exception {
+    private void checkJarFile(JarURLConnection connection, String pckgname) throws Exception {
         final JarFile jarFile = connection.getJarFile();
         final Enumeration<JarEntry> entries = jarFile.entries();
         String name;
@@ -92,18 +82,18 @@ public class CustomScanner implements IScanner {
                 name = name.substring(0, name.length() - 6).replace('/', '.');
 
                 if (name.contains(pckgname)) {
-                    Class<?> clazz = Class.forName(name);
-                    if (check(clazz)) {
-                        result.add(clazz);
-                    }
+                    addClass(name);
                 }
             }
         }
 
     }
 
-    private static boolean check(Class<?> clazz) {
-        return clazz.isAnnotationPresent(Entity.class);
+    private void addClass(String className) {
+        Class<?> clazz = ClassUtils.toClass(className, getLoader());
+        if (isAnnotationPresent(clazz)) {
+            result.add(clazz);
+        }
     }
 
 }

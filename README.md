@@ -17,7 +17,9 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 ### Libraries
 [google/guava](https://github.com/google/guava) (using `ClassPath`) — [GuavaLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaLibrary.java)
 
-[spring context](http://mvnrepository.com/artifact/org.springframework/spring-context) (using `ClassPathScanningCandidateComponentProvider`) — [SpringLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/SpringLibrary.java)
+[spring-context](http://mvnrepository.com/artifact/org.springframework/spring-context) (using `ClassPathScanningCandidateComponentProvider`) — [SpringLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/SpringLibrary.java)
+
+[spring-orm](http://mvnrepository.com/artifact/org.springframework/spring-orm) (using code form`LocalSessionFactoryBean`) — [SpringOrmLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/SpringOrmLibrary.java)
 <br /><br />
 
 [ronmamo/reflections](https://github.com/ronmamo/reflections) (improved version of `scannotation`) — [ReflectionsLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/ReflectionsLibrary.java)

@@ -11,8 +11,10 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
-import org.junit.Test;
-
+import com.github.ladynev.scanners.jar.tmp.persistent.FirstRootJarTmpEntity;
+import com.github.ladynev.scanners.jar.tmp.persistent.NotJarTmpEntity;
+import com.github.ladynev.scanners.jar.tmp.persistent.SecondRootJarTmpEntity;
+import com.github.ladynev.scanners.jar.tmp.persistent.subpackage.FirstSubpackageJarTmpEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity.NestedEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntityJar;
@@ -25,24 +27,43 @@ import com.github.ladynev.scanners.persistent.subpackage.FirstSubpackageEntity;
 import com.github.ladynev.scanners.persistent.subpackage.FirstSubpackageEntityJar;
 import com.github.ladynev.scanners.util.ClassUtils;
 import com.github.ladynev.scanners.util.IScanner;
+import com.google.common.collect.ObjectArrays;
 
 /**
  *
  * @author V.Ladynev
- * @version $Id$
  */
 public class ScannersTest {
 
     private static final String ROOT_PACKAGE = "com.github.ladynev.scanners.persistent";
 
-    @Test
+    private static final Class<?>[] SIMPLY_ENTITY_CLASSES = new Class<?>[] { FirstRootEntity.class,
+        SecondRootEntity.class, FirstSubpackageEntity.class, NestedEntity.class };
+
+    private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
+        FirstRootEntityJar.class, SecondRootEntityJar.class, FirstSubpackageEntityJar.class,
+        NestedEntityJar.class };
+
+    private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
+            JAR_STATIC_ENTITY_CLASSES, Class.class);
+
+    private static final String JAR_TMP_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.tmp.persistent";
+
+    private static final Class<?>[] JAR_TMP_ENTITY_CLASSES = new Class<?>[] {
+        FirstRootJarTmpEntity.class, FirstRootJarTmpEntity.NestedJarTmpEntity.class,
+        SecondRootJarTmpEntity.class, FirstSubpackageJarTmpEntity.class };
+
+    private static final Class<?>[] JAR_TMP_CLASSES = ObjectArrays.concat(JAR_TMP_ENTITY_CLASSES,
+            NotJarTmpEntity.class);
+
+    // @Test
     public void guavaLibrary() throws Exception {
         scan(new GuavaLibrary());
     }
 
-    @Test
+    // @Test
     public void guavaLibraryJar() throws Exception {
-        scanInJar(new GuavaLibrary());
+        scanInJarTmp(new GuavaLibrary());
     }
 
     // @Test
@@ -52,7 +73,17 @@ public class ScannersTest {
 
     // @Test
     public void springLibraryJar() throws Exception {
-        scanInJar(new SpringLibrary());
+        scanInJarTmp(new SpringLibrary());
+    }
+
+    // @Test
+    public void springOrmLibrary() throws Exception {
+        scan(new SpringOrmLibrary());
+    }
+
+    // @Test
+    public void springOrmLibraryJar() throws Exception {
+        scanInJarTmp(new SpringOrmLibrary());
     }
 
     // @Test
@@ -62,7 +93,7 @@ public class ScannersTest {
 
     // @Test
     public void javaToolJar() throws Exception {
-        scanInJar(new JavaToolsScanner());
+        scanInJarTmp(new JavaToolsScanner());
     }
 
     // @Test
@@ -72,7 +103,7 @@ public class ScannersTest {
 
     // @Test
     public void customScannerJar() throws Exception {
-        scanInJar(new CustomScanner());
+        scanInJarTmp(new CustomScanner());
     }
 
     // @Test
@@ -82,7 +113,7 @@ public class ScannersTest {
 
     // @Test
     public void fastClasspathScannerLibraryJar() throws Exception {
-        scanInJar(new FastClasspathScannerLibrary());
+        scanInJarTmp(new FastClasspathScannerLibrary());
     }
 
     // @Test
@@ -92,7 +123,7 @@ public class ScannersTest {
 
     // @Test
     public void infomasAslLibraryJar() throws Exception {
-        scanInJar(new InfomasAslLibrary());
+        scanInJarTmp(new InfomasAslLibrary());
     }
 
     // @Test
@@ -102,7 +133,7 @@ public class ScannersTest {
 
     // @Test
     public void classEnumeratorJar() throws Exception {
-        scanInJar(new ClassEnumeratorScanner());
+        scanInJarTmp(new ClassEnumeratorScanner());
     }
 
     // @Test
@@ -112,7 +143,7 @@ public class ScannersTest {
 
     // @Test
     public void reflectionsLibraryJar() throws Exception {
-        scanInJar(new ReflectionsLibrary());
+        scanInJarTmp(new ReflectionsLibrary());
     }
 
     // @Test
@@ -122,61 +153,48 @@ public class ScannersTest {
 
     // @Test
     public void annoventionsLibraryJar() throws Exception {
-        scanInJar(new AnnoventionLibrary());
+        scanInJarTmp(new AnnoventionLibrary());
     }
 
     private static void scan(IScanner scanner) throws Exception {
-        List<Class<?>> classes = scan(scanner, ROOT_PACKAGE);
-        assertThat(classes).contains(FirstRootEntity.class, SecondRootEntity.class,
-                FirstSubpackageEntity.class, NestedEntity.class, FirstRootEntityJar.class,
-                SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class)
-                .doesNotContain(NotEntity.class, NotEntityJar.class);
+        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE);
+        assertThat(classes).contains(ENTITY_CLASSES).doesNotContain(NotEntity.class,
+                NotEntityJar.class);
     }
 
-    private static List<Class<?>> scan(IScanner scanner, String... packages) throws Exception {
-        List<Class<?>> result = new ArrayList<Class<?>>();
-        for (String packageToScan : packages) {
-            result.addAll(scanner.scan(packageToScan));
-        }
-
-        return result;
-    }
-
-    private static void scanInJar(IScanner scanner) throws Exception {
+    private static void scanInJarTmp(IScanner scanner) throws Exception {
         File jarFile = File.createTempFile("scanners-test", ".jar");
         try {
-            scanInJar(scanner, jarFile);
+            scanInJarTmp(scanner, jarFile);
         } finally {
             jarFile.delete();
         }
     }
 
-    private static void scanInJar(IScanner scanner, File jarFile) throws Exception {
-        ScannersTestUtils.writeJarFile(jarFile, FirstRootEntity.class,
-                FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
-                FirstSubpackageEntity.class, NotEntity.class);
+    private static void scanInJarTmp(IScanner scanner, File jarFile) throws Exception {
+        ScannersTestUtils.writeJarFile(jarFile, JAR_TMP_CLASSES);
 
-        URL jpaJar = ClassUtils.urlForJar("hibernate-jpa-2.1-api-1.0.0.Final.jar");
-        assertThat(jpaJar).isNotNull();
-
-        ClassLoader parent = null;
-        URLClassLoader loader = ClassUtils.createClassLoader(parent, jarFile.toURI().toURL(),
-                jpaJar);
+        URLClassLoader loader = createTmpJarClassLoader(jarFile);
 
         Class<? extends Annotation> entityAnnotation = (Class<? extends Annotation>) loader
                 .loadClass(Entity.class.getName());
         assertThat(entityAnnotation).isNotNull();
 
         scanner.tune(loader, entityAnnotation);
-        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE);
+        List<Class<?>> classes = scanner.scan(JAR_TMP_ROOT_PACKAGE);
 
-        assertThat(classes).contains(
-                reload(loader, FirstRootEntity.class, SecondRootEntity.class,
-                        FirstSubpackageEntity.class, NestedEntity.class)).doesNotContain(
-                                reload(loader, NotEntity.class));
+        assertThat(classes).contains(reload(loader, JAR_TMP_ENTITY_CLASSES)).doesNotContain(
+                reload(loader, NotJarTmpEntity.class));
 
-        assertThat(classes).doesNotContain(FirstRootEntity.class, SecondRootEntity.class,
-                FirstSubpackageEntity.class, NestedEntity.class);
+        assertThat(classes).doesNotContain(JAR_TMP_ENTITY_CLASSES);
+    }
+
+    private static URLClassLoader createTmpJarClassLoader(File jarFile) throws Exception {
+        URL jpaJar = ClassUtils.urlForJar("hibernate-jpa-2.1-api-1.0.0.Final.jar");
+        assertThat(jpaJar).isNotNull();
+
+        ClassLoader parent = null;
+        return ClassUtils.createClassLoader(parent, jarFile.toURI().toURL(), jpaJar);
     }
 
     private static Class<?>[] reload(ClassLoader loader, Class<?>... classes) throws Exception {

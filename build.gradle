@@ -12,12 +12,14 @@ repositories {
 
 dependencies {
     compile 'org.hibernate:hibernate-core:5.0.7.Final'
+
     compile 'org.springframework:spring-context:4.2.2.RELEASE'
+    compile 'org.springframework:spring-orm:4.2.2.RELEASE'
+
     compile 'com.google.guava:guava:19.0'
     compile 'io.github.lukehutch:fast-classpath-scanner:1.9.17'
     compile 'eu.infomas:annotation-detector:3.0.5'
     compile 'org.reflections:reflections:0.9.10'
-
     compile 'tv.cntt:annovention:1.7'
 
     compile files('libs/entites-for-test.jar')

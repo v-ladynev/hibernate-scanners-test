@@ -3,7 +3,7 @@ package com.github.ladynev.scanners;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.github.ladynev.scanners.util.ScannerAdapter;
 import com.impetus.annovention.ClasspathDiscoverer;
 import com.impetus.annovention.Discoverer;
@@ -47,7 +47,7 @@ public class AnnoventionLibrary extends ScannerAdapter {
 
         @Override
         public void discovered(String clazz, String annotation) {
-            result.add(ClassUtils.toClass(clazz, AnnoventionLibrary.this.getLoader()));
+            result.add(ScannersUtils.toClass(clazz, AnnoventionLibrary.this.getLoader()));
         }
 
         @Override

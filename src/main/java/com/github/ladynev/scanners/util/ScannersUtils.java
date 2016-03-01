@@ -8,7 +8,7 @@ import java.net.URLClassLoader;
  *
  * @author V.Ladynev
  */
-public final class ClassUtils {
+public final class ScannersUtils {
 
     private static final char PACKAGE_SEPARATOR = '.';
 
@@ -18,7 +18,7 @@ public final class ClassUtils {
 
     public static final String CLASS_FILE_SUFFIX = ".class";
 
-    private ClassUtils() {
+    private ScannersUtils() {
 
     }
 

@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.github.ladynev.scanners.util.ScannerAdapter;
 
 import eu.infomas.annotation.AnnotationDetector;
@@ -45,7 +45,7 @@ public class InfomasAslLibrary extends ScannerAdapter {
 
         @Override
         public void reportTypeAnnotation(Class<? extends Annotation> annotation, String className) {
-            result.add(ClassUtils.toClass(className, InfomasAslLibrary.this.getLoader()));
+            result.add(ScannersUtils.toClass(className, InfomasAslLibrary.this.getLoader()));
         }
 
     }

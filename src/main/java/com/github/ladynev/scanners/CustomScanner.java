@@ -13,7 +13,7 @@ import java.util.jar.JarFile;
 
 import sun.net.www.protocol.file.FileURLConnection;
 
-import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
@@ -90,7 +90,7 @@ public class CustomScanner extends ScannerAdapter {
     }
 
     private void addClass(String className) {
-        Class<?> clazz = ClassUtils.toClass(className, getLoader());
+        Class<?> clazz = ScannersUtils.toClass(className, getLoader());
         if (isAnnotationPresent(clazz)) {
             result.add(clazz);
         }

@@ -11,10 +11,12 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
-import com.github.ladynev.scanners.jar.tmp.persistent.FirstRootJarTmpEntity;
-import com.github.ladynev.scanners.jar.tmp.persistent.NotJarTmpEntity;
-import com.github.ladynev.scanners.jar.tmp.persistent.SecondRootJarTmpEntity;
-import com.github.ladynev.scanners.jar.tmp.persistent.subpackage.FirstSubpackageJarTmpEntity;
+import org.junit.Test;
+
+import com.github.ladynev.scanners.jar.dyn.persistent.FirstRootJarDynEntity;
+import com.github.ladynev.scanners.jar.dyn.persistent.NotJarDynEntity;
+import com.github.ladynev.scanners.jar.dyn.persistent.SecondRootJarDynEntity;
+import com.github.ladynev.scanners.jar.dyn.persistent.subpackage.FirstSubpackageJarDynEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity.NestedEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntityJar;
@@ -25,8 +27,8 @@ import com.github.ladynev.scanners.persistent.SecondRootEntity;
 import com.github.ladynev.scanners.persistent.SecondRootEntityJar;
 import com.github.ladynev.scanners.persistent.subpackage.FirstSubpackageEntity;
 import com.github.ladynev.scanners.persistent.subpackage.FirstSubpackageEntityJar;
-import com.github.ladynev.scanners.util.ClassUtils;
 import com.github.ladynev.scanners.util.IScanner;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.google.common.collect.ObjectArrays;
 
 /**
@@ -38,23 +40,24 @@ public class ScannersTest {
     private static final String ROOT_PACKAGE = "com.github.ladynev.scanners.persistent";
 
     private static final Class<?>[] SIMPLY_ENTITY_CLASSES = new Class<?>[] { FirstRootEntity.class,
-        SecondRootEntity.class, FirstSubpackageEntity.class, NestedEntity.class };
+            FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
+            FirstSubpackageEntity.class, NestedEntity.class };
 
     private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
-        FirstRootEntityJar.class, SecondRootEntityJar.class, FirstSubpackageEntityJar.class,
-        NestedEntityJar.class };
+        FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
+        SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
 
     private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
             JAR_STATIC_ENTITY_CLASSES, Class.class);
 
-    private static final String JAR_TMP_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.tmp.persistent";
+    private static final String JAR_DYNAMIC_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.dyn.persistent";
 
-    private static final Class<?>[] JAR_TMP_ENTITY_CLASSES = new Class<?>[] {
-        FirstRootJarTmpEntity.class, FirstRootJarTmpEntity.NestedJarTmpEntity.class,
-        SecondRootJarTmpEntity.class, FirstSubpackageJarTmpEntity.class };
+    private static final Class<?>[] JAR_DYNAMIC_ENTITY_CLASSES = new Class<?>[] {
+        FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
+        SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
 
-    private static final Class<?>[] JAR_TMP_CLASSES = ObjectArrays.concat(JAR_TMP_ENTITY_CLASSES,
-            NotJarTmpEntity.class);
+    private static final Class<?>[] JAR_DYNAMIC_CLASSES = ObjectArrays.concat(
+            JAR_DYNAMIC_ENTITY_CLASSES, NotJarDynEntity.class);
 
     // @Test
     public void guavaLibrary() throws Exception {
@@ -63,7 +66,7 @@ public class ScannersTest {
 
     // @Test
     public void guavaLibraryJar() throws Exception {
-        scanInJarTmp(new GuavaLibrary());
+        scanInDynamicJar(new GuavaLibrary());
     }
 
     // @Test
@@ -73,7 +76,7 @@ public class ScannersTest {
 
     // @Test
     public void springLibraryJar() throws Exception {
-        scanInJarTmp(new SpringLibrary());
+        scanInDynamicJar(new SpringLibrary());
     }
 
     // @Test
@@ -83,7 +86,7 @@ public class ScannersTest {
 
     // @Test
     public void springOrmLibraryJar() throws Exception {
-        scanInJarTmp(new SpringOrmLibrary());
+        scanInDynamicJar(new SpringOrmLibrary());
     }
 
     // @Test
@@ -93,7 +96,7 @@ public class ScannersTest {
 
     // @Test
     public void javaToolJar() throws Exception {
-        scanInJarTmp(new JavaToolsScanner());
+        scanInDynamicJar(new JavaToolsScanner());
     }
 
     // @Test
@@ -103,7 +106,7 @@ public class ScannersTest {
 
     // @Test
     public void customScannerJar() throws Exception {
-        scanInJarTmp(new CustomScanner());
+        scanInDynamicJar(new CustomScanner());
     }
 
     // @Test
@@ -113,7 +116,8 @@ public class ScannersTest {
 
     // @Test
     public void fastClasspathScannerLibraryJar() throws Exception {
-        scanInJarTmp(new FastClasspathScannerLibrary());
+        // FastClasspathScanner.verbose = true;
+        scanInDynamicJar(new FastClasspathScannerLibrary());
     }
 
     // @Test
@@ -123,7 +127,7 @@ public class ScannersTest {
 
     // @Test
     public void infomasAslLibraryJar() throws Exception {
-        scanInJarTmp(new InfomasAslLibrary());
+        scanInDynamicJar(new InfomasAslLibrary());
     }
 
     // @Test
@@ -133,7 +137,7 @@ public class ScannersTest {
 
     // @Test
     public void classEnumeratorJar() throws Exception {
-        scanInJarTmp(new ClassEnumeratorScanner());
+        scanInDynamicJar(new ClassEnumeratorScanner());
     }
 
     // @Test
@@ -143,7 +147,7 @@ public class ScannersTest {
 
     // @Test
     public void reflectionsLibraryJar() throws Exception {
-        scanInJarTmp(new ReflectionsLibrary());
+        scanInDynamicJar(new ReflectionsLibrary());
     }
 
     // @Test
@@ -153,7 +157,17 @@ public class ScannersTest {
 
     // @Test
     public void annoventionsLibraryJar() throws Exception {
-        scanInJarTmp(new AnnoventionLibrary());
+        scanInDynamicJar(new AnnoventionLibrary());
+    }
+
+    @Test
+    public void fluentHibernateLibrary() throws Exception {
+        scan(new FluentHibernateLibrary());
+    }
+
+    @Test
+    public void fluentHibernateLibraryJar() throws Exception {
+        scanInDynamicJar(new FluentHibernateLibrary());
     }
 
     private static void scan(IScanner scanner) throws Exception {
@@ -162,39 +176,39 @@ public class ScannersTest {
                 NotEntityJar.class);
     }
 
-    private static void scanInJarTmp(IScanner scanner) throws Exception {
+    private static void scanInDynamicJar(IScanner scanner) throws Exception {
         File jarFile = File.createTempFile("scanners-test", ".jar");
         try {
-            scanInJarTmp(scanner, jarFile);
+            scanInDynamicJar(scanner, jarFile);
         } finally {
             jarFile.delete();
         }
     }
 
-    private static void scanInJarTmp(IScanner scanner, File jarFile) throws Exception {
-        ScannersTestUtils.writeJarFile(jarFile, JAR_TMP_CLASSES);
+    private static void scanInDynamicJar(IScanner scanner, File jarFile) throws Exception {
+        ScannersTestUtils.writeJarFile(jarFile, JAR_DYNAMIC_CLASSES);
 
-        URLClassLoader loader = createTmpJarClassLoader(jarFile);
+        URLClassLoader loader = createDynJarClassLoader(jarFile);
 
         Class<? extends Annotation> entityAnnotation = (Class<? extends Annotation>) loader
                 .loadClass(Entity.class.getName());
         assertThat(entityAnnotation).isNotNull();
 
         scanner.tune(loader, entityAnnotation);
-        List<Class<?>> classes = scanner.scan(JAR_TMP_ROOT_PACKAGE);
+        List<Class<?>> classes = scanner.scan(JAR_DYNAMIC_ROOT_PACKAGE);
 
-        assertThat(classes).contains(reload(loader, JAR_TMP_ENTITY_CLASSES)).doesNotContain(
-                reload(loader, NotJarTmpEntity.class));
+        assertThat(classes).contains(reload(loader, JAR_DYNAMIC_ENTITY_CLASSES)).doesNotContain(
+                reload(loader, NotJarDynEntity.class));
 
-        assertThat(classes).doesNotContain(JAR_TMP_ENTITY_CLASSES);
+        assertThat(classes).doesNotContain(JAR_DYNAMIC_ENTITY_CLASSES);
     }
 
-    private static URLClassLoader createTmpJarClassLoader(File jarFile) throws Exception {
-        URL jpaJar = ClassUtils.urlForJar("hibernate-jpa-2.1-api-1.0.0.Final.jar");
+    private static URLClassLoader createDynJarClassLoader(File jarFile) throws Exception {
+        URL jpaJar = ScannersUtils.urlForJar("hibernate-jpa-2.1-api-1.0.0.Final.jar");
         assertThat(jpaJar).isNotNull();
 
         ClassLoader parent = null;
-        return ClassUtils.createClassLoader(parent, jarFile.toURI().toURL(), jpaJar);
+        return ScannersUtils.createClassLoader(parent, jarFile.toURI().toURL(), jpaJar);
     }
 
     private static Class<?>[] reload(ClassLoader loader, Class<?>... classes) throws Exception {

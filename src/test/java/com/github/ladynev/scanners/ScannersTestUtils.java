@@ -8,7 +8,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.google.common.io.Closer;
 import com.google.common.io.Resources;
 
@@ -27,9 +27,9 @@ public final class ScannersTestUtils {
             JarOutputStream jarOut = closer.register(new JarOutputStream(fileOut, manifest));
 
             for (Class<?> clazz : classes) {
-                String classResource = ClassUtils.classAsResource(clazz.getName());
+                String classResource = ScannersUtils.classAsResource(clazz.getName());
                 jarOut.putNextEntry(new ZipEntry(classResource));
-                Resources.copy(ScannersTestUtils.class.getResource(ClassUtils
+                Resources.copy(ScannersTestUtils.class.getResource(ScannersUtils
                         .resourcePathFromRoot(classResource)), jarOut);
                 jarOut.closeEntry();
             }

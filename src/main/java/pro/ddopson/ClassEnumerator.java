@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannersUtils;
 
 /**
  *
@@ -28,7 +28,7 @@ public class ClassEnumerator {
     }
 
     private Class<?> loadClass(String className) {
-        return ClassUtils.toClass(className, loader);
+        return ScannersUtils.toClass(className, loader);
     }
 
     /**

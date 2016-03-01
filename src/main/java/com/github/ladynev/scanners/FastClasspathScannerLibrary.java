@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.ladynev.scanners.util.ScannerAdapter;
+import com.github.ladynev.scanners.util.ScannersUtils;
 
 /**
  * https://github.com/lukehutch/fast-classpath-scanner
@@ -25,7 +26,7 @@ public class FastClasspathScannerLibrary extends ScannerAdapter {
                 getAnnotation(), new ClassAnnotationMatchProcessor() {
                     @Override
                     public void processMatch(Class<?> matchingClass) {
-                        result.add(matchingClass);
+                        result.add(ScannersUtils.toClass(matchingClass.getName(), getLoader()));
                     }
                 }).scan();
 
@@ -33,5 +34,4 @@ public class FastClasspathScannerLibrary extends ScannerAdapter {
 
         return result;
     }
-
 }

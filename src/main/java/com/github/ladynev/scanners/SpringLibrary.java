@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import com.github.ladynev.scanners.util.ClassUtils;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
@@ -30,7 +30,7 @@ public class SpringLibrary extends ScannerAdapter {
 
         Set<BeanDefinition> classes = provider.findCandidateComponents(packageToScan);
         for (BeanDefinition bean : classes) {
-            result.add(ClassUtils.toClass(bean.getBeanClassName(), getLoader()));
+            result.add(ScannersUtils.toClass(bean.getBeanClassName(), getLoader()));
         }
 
         return result;

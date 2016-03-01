@@ -44,8 +44,8 @@ public class ScannersTest {
             FirstSubpackageEntity.class, NestedEntity.class };
 
     private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
-        FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
-        SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
+            FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
+            SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
 
     private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
             JAR_STATIC_ENTITY_CLASSES, Class.class);
@@ -53,8 +53,8 @@ public class ScannersTest {
     private static final String JAR_DYNAMIC_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.dyn.persistent";
 
     private static final Class<?>[] JAR_DYNAMIC_ENTITY_CLASSES = new Class<?>[] {
-        FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
-        SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
+            FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
+            SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
 
     private static final Class<?>[] JAR_DYNAMIC_CLASSES = ObjectArrays.concat(
             JAR_DYNAMIC_ENTITY_CLASSES, NotJarDynEntity.class);
@@ -87,6 +87,16 @@ public class ScannersTest {
     // @Test
     public void springOrmLibraryJar() throws Exception {
         scanInDynamicJar(new SpringOrmLibrary());
+    }
+
+    // @Test
+    public void springOrmCopyLibrary() throws Exception {
+        scan(new SpringOrmCopyLibrary());
+    }
+
+    // @Test
+    public void springOrmCopyLibraryJar() throws Exception {
+        scanInDynamicJar(new SpringOrmCopyLibrary());
     }
 
     // @Test
@@ -165,7 +175,7 @@ public class ScannersTest {
         scan(new FluentHibernateLibrary());
     }
 
-    @Test
+    // @Test
     public void fluentHibernateLibraryJar() throws Exception {
         scanInDynamicJar(new FluentHibernateLibrary());
     }

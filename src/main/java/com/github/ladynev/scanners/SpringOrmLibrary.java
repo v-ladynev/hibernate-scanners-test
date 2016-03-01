@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -31,15 +30,12 @@ public class SpringOrmLibrary extends ScannerAdapter {
 
         PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver(
                 getLoader());
-        ResourcePatternResolver resourcePatternResolver = ResourcePatternUtils
-                .getResourcePatternResolver(resourceLoader);
 
         String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                 + ClassUtils.convertClassNameToResourcePath(packageToScan) + RESOURCE_PATTERN;
 
-        Resource[] resources = resourcePatternResolver.getResources(pattern);
-        MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(
-                resourcePatternResolver);
+        Resource[] resources = resourceLoader.getResources(pattern);
+        MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resourceLoader);
         for (Resource resource : resources) {
             if (resource.isReadable()) {
                 MetadataReader reader = readerFactory.getMetadataReader(resource);

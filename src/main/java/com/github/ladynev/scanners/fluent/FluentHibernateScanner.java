@@ -7,7 +7,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,29 +19,17 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import javax.annotation.Nullable;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
-
 /**
  *
  * @author V.Ladynev
  */
 public final class FluentHibernateScanner {
 
-    private static final Splitter CLASS_PATH_ATTRIBUTE_SEPARATOR = Splitter.on(" ")
-            .omitEmptyStrings();
+    private final List<Class<?>> result = new ArrayList<Class<?>>();
 
-    private final Set<File> scannedUris = Sets.newHashSet();
+    private final Set<File> scannedUris = new HashSet<File>();
 
-    private final SetMultimap<ClassLoader, String> resources = MultimapBuilder.hashKeys()
-            .linkedHashSetValues().build();
+    private final Set<String> classResources = new HashSet<String>();
 
     private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
@@ -76,52 +66,34 @@ public final class FluentHibernateScanner {
             scan(entry.getKey(), entry.getValue());
         }
 
-        return getClasses();
-    }
-
-    private List<Class<?>> getClasses() {
-        List<Class<?>> result = new ArrayList<Class<?>>();
-
-        for (Map.Entry<ClassLoader, String> entry : resources.entries()) {
-            for (String packageToScan : packagesToScan) {
-                String prefix = ClassUtils.packageAsResourcePath(packageToScan);
-                String className = entry.getValue();
-                if (className.startsWith(prefix)) {
-                    Class<?> clazz = ClassUtils.classForName(
-                            ClassUtils.getClassNameFromPath(entry.getValue()), entry.getKey());
-                    if (clazz.isAnnotationPresent(annotation)) {
-                        result.add(clazz);
-                    }
-                }
-            }
-        }
-
         return result;
     }
 
-    private static ImmutableMap<File, ClassLoader> getClassPathEntries(ClassLoader classloader) {
-        LinkedHashMap<File, ClassLoader> entries = Maps.newLinkedHashMap();
+    private static Map<File, ClassLoader> getClassPathEntries(ClassLoader classloader) {
+        LinkedHashMap<File, ClassLoader> result = new LinkedHashMap<File, ClassLoader>();
         // Search parent first, since it's the order ClassLoader#loadClass() uses.
         ClassLoader parent = classloader.getParent();
         if (parent != null) {
-            entries.putAll(getClassPathEntries(parent));
+            result.putAll(getClassPathEntries(parent));
         }
         if (classloader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classloader;
             for (URL entry : urlClassLoader.getURLs()) {
                 if (entry.getProtocol().equals("file")) {
                     File file = new File(entry.getFile());
-                    if (!entries.containsKey(file)) {
-                        entries.put(file, classloader);
+                    if (!result.containsKey(file)) {
+                        result.put(file, classloader);
                     }
                 }
             }
         }
-        return ImmutableMap.copyOf(entries);
+        return result;
     }
 
     private final void scan(File file, ClassLoader classloader) throws IOException {
+        // scan each file once independent of the classloader
         if (scannedUris.add(file.getCanonicalFile())) {
+            // TODO don't scan jre
             scanFrom(file, classloader);
         }
     }
@@ -165,7 +137,8 @@ public final class FluentHibernateScanner {
             if (entry.isDirectory() || entry.getName().equals(JarFile.MANIFEST_NAME)) {
                 continue;
             }
-            resources.get(classloader).add(entry.getName());
+
+            addClass(entry.getName(), classloader);
         }
     }
 
@@ -177,7 +150,6 @@ public final class FluentHibernateScanner {
             throws IOException {
         File[] files = directory.listFiles();
         if (files == null) {
-
             // IO error, just skip the directory
             return;
         }
@@ -188,22 +160,21 @@ public final class FluentHibernateScanner {
             } else {
                 String resourceName = packagePrefix + name;
                 if (!resourceName.equals(JarFile.MANIFEST_NAME)) {
-                    resources.get(classloader).add(resourceName);
+                    addClass(resourceName, classloader);
                 }
             }
         }
     }
 
-    private static ImmutableSet<File> getClassPathFromManifest(File jarFile,
-            @Nullable Manifest manifest) {
+    private static Set<File> getClassPathFromManifest(File jarFile, Manifest manifest) {
         if (manifest == null) {
-            return ImmutableSet.of();
+            return Collections.emptySet();
         }
-        ImmutableSet.Builder<File> builder = ImmutableSet.builder();
+        Set<File> result = new HashSet<File>();
         String classpathAttribute = manifest.getMainAttributes().getValue(
                 Attributes.Name.CLASS_PATH.toString());
         if (classpathAttribute != null) {
-            for (String path : CLASS_PATH_ATTRIBUTE_SEPARATOR.split(classpathAttribute)) {
+            for (String path : StringUtils.splitBySpace(classpathAttribute)) {
                 URL url;
                 try {
                     url = getClassPathEntry(jarFile, path);
@@ -212,11 +183,31 @@ public final class FluentHibernateScanner {
                     continue;
                 }
                 if (url.getProtocol().equals("file")) {
-                    builder.add(new File(url.getFile()));
+                    result.add(new File(url.getFile()));
                 }
             }
         }
-        return builder.build();
+        return result;
+    }
+
+    private void addClass(String classResource, ClassLoader loader) {
+        System.out.println(classResource);
+        if (!classResources.add(classResource)) {
+            System.out.println("has " + classResource);
+            return;
+        }
+
+        for (String packageToScan : packagesToScan) {
+            String prefix = ClassUtils.packageAsResourcePath(packageToScan);
+            if (classResource.startsWith(prefix)) {
+                Class<?> clazz = ClassUtils.classForName(
+                        ClassUtils.getClassNameFromPath(classResource), loader);
+                if (clazz.isAnnotationPresent(annotation)) {
+                    result.add(clazz);
+                    return;
+                }
+            }
+        }
     }
 
     private static URL getClassPathEntry(File jarFile, String path) throws MalformedURLException {

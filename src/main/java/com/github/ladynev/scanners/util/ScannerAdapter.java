@@ -1,6 +1,8 @@
 package com.github.ladynev.scanners.util;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 
@@ -48,6 +50,16 @@ public abstract class ScannerAdapter implements IScanner {
 
     protected void backContextClassLoader() {
         Thread.currentThread().setContextClassLoader(prevContextClassLoader);
+    }
+
+    @Override
+    public List<Class<?>> scan(String... packagesToScan) throws Exception {
+        List<Class<?>> result = new ArrayList<Class<?>>();
+        for (String packageToScan : packagesToScan) {
+            result.addAll(scan(packageToScan));
+        }
+
+        return result;
     }
 
 }

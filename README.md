@@ -43,6 +43,10 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 [JBoss MC Scanning lib](https://developer.jboss.org/wiki/MCScanninglib)
 
+### Sources
+
 [ContextConfig.java](http://svn.apache.org/viewvc/tomcat/trunk/java/org/apache/catalina/startup/ContextConfig.java?annotate=1537835)  (from Tomcat)
+
+[reflections/ClasspathHelper](https://github.com/ronmamo/reflections/blob/737683bb977d46b800621c6ef77afdbf1c294a54/src/test/java/org/reflections/ClasspathHelperTest.java) — contains some convenient methods to get urls for package, for class, for classloader
 
 

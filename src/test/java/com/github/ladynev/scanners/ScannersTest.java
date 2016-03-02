@@ -17,6 +17,7 @@ import com.github.ladynev.scanners.jar.dyn.persistent.FirstRootJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.NotJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.SecondRootJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.subpackage.FirstSubpackageJarDynEntity;
+import com.github.ladynev.scanners.other.persistent.OtherRootEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntity.NestedEntity;
 import com.github.ladynev.scanners.persistent.FirstRootEntityJar;
@@ -39,15 +40,21 @@ public class ScannersTest {
 
     private static final String ROOT_PACKAGE = "com.github.ladynev.scanners.persistent";
 
+    private static final String OTHER_PACKAGE = "com.github.ladynev.scanners.other.persistent";
+
     private static final Class<?>[] SIMPLY_ENTITY_CLASSES = new Class<?>[] { FirstRootEntity.class,
             FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
             FirstSubpackageEntity.class, NestedEntity.class };
+
+    private static final Class<?>[] OTHER_ENTITY_CLASSES = new Class<?>[] { OtherRootEntity.class,
+            OtherRootEntity.OtherNestedEntity.class };
 
     private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
             FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
             SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
 
-    private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
+    private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(
+            ObjectArrays.concat(SIMPLY_ENTITY_CLASSES, OTHER_ENTITY_CLASSES, Class.class),
             JAR_STATIC_ENTITY_CLASSES, Class.class);
 
     private static final String JAR_DYNAMIC_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.dyn.persistent";
@@ -152,12 +159,23 @@ public class ScannersTest {
 
     // @Test
     public void reflectionsLibrary() throws Exception {
+        // ClasspathHelper working with loaders
         scan(new ReflectionsLibrary());
     }
 
     // @Test
     public void reflectionsLibraryJar() throws Exception {
         scanInDynamicJar(new ReflectionsLibrary());
+    }
+
+    @Test
+    public void reflectionsCopyLibrary() throws Exception {
+        scan(new ReflectionsCopyLibrary());
+    }
+
+    // @Test
+    public void reflectionsCopyLibraryJar() throws Exception {
+        scanInDynamicJar(new ReflectionsCopyLibrary());
     }
 
     // @Test
@@ -170,8 +188,9 @@ public class ScannersTest {
         scanInDynamicJar(new AnnoventionLibrary());
     }
 
-    @Test
+    // @Test
     public void fluentHibernateLibrary() throws Exception {
+        // guava 1010 millis
         scan(new FluentHibernateLibrary());
     }
 
@@ -181,7 +200,12 @@ public class ScannersTest {
     }
 
     private static void scan(IScanner scanner) throws Exception {
-        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE);
+        long begin = System.currentTimeMillis();
+        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE, OTHER_PACKAGE);
+        long elapsed = System.currentTimeMillis() - begin;
+        System.out.println(String.format("%s: %d millis", scanner.getClass().getSimpleName(),
+                elapsed));
+
         assertThat(classes).contains(ENTITY_CLASSES).doesNotContain(NotEntity.class,
                 NotEntityJar.class);
     }

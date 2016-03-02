@@ -23,7 +23,7 @@ import java.util.jar.Manifest;
  *
  * @author V.Ladynev
  */
-public final class FluentHibernateScanner {
+public final class FluentEntityScanner {
 
     private final List<Class<?>> result = new ArrayList<Class<?>>();
 
@@ -37,7 +37,7 @@ public final class FluentHibernateScanner {
 
     private final Class<? extends Annotation> annotation;
 
-    private FluentHibernateScanner(Class<? extends Annotation> annotation, String[] packagesToScan) {
+    private FluentEntityScanner(Class<? extends Annotation> annotation, String[] packagesToScan) {
         this.annotation = annotation;
         this.packagesToScan = packagesToScan;
     }
@@ -57,7 +57,7 @@ public final class FluentHibernateScanner {
      */
     public static List<Class<?>> scanPackages(Class<? extends Annotation> annotation,
             String... packagesToScan) throws IOException {
-        return new FluentHibernateScanner(annotation, packagesToScan).scan();
+        return new FluentEntityScanner(annotation, packagesToScan).scan();
     }
 
     private List<Class<?>> scan() throws IOException {
@@ -143,7 +143,7 @@ public final class FluentHibernateScanner {
     }
 
     private void scanDirectory(ClassLoader classloader, File directory) throws IOException {
-        scanDirectory(directory, classloader, "");
+        scanDirectory(directory, classloader, StringUtils.EMPTY);
     }
 
     private void scanDirectory(File directory, ClassLoader classloader, String packagePrefix)
@@ -193,7 +193,6 @@ public final class FluentHibernateScanner {
     private void addClass(String classResource, ClassLoader loader) {
         System.out.println(classResource);
         if (!classResources.add(classResource)) {
-            System.out.println("has " + classResource);
             return;
         }
 

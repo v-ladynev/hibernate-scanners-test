@@ -11,6 +11,8 @@ public interface IScanner {
 
     List<Class<?>> scan(String packageToScan) throws Exception;
 
+    List<Class<?>> scan(String... packagesToScan) throws Exception;
+
     void tune(ClassLoader loader, Class<? extends Annotation> annotation);
 
 }

@@ -16,9 +16,10 @@ import com.github.ladynev.scanners.util.ScannerAdapter;
 public class ReflectionsLibrary extends ScannerAdapter {
 
     @Override
-    public List<Class<?>> scan(String packageToScan) throws Exception {
-        Reflections reflections = isTuned() ? new Reflections(packageToScan, getLoader())
-                : new Reflections(packageToScan);
+    public List<Class<?>> scan(String... packagesToScan) throws Exception {
+        Reflections reflections = isTuned() ? new Reflections(packagesToScan, getLoader())
+        : new Reflections(packagesToScan);
+
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(getAnnotation());
         return new ArrayList<Class<?>>(annotated);
     }

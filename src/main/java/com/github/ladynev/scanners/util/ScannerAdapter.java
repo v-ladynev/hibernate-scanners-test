@@ -53,6 +53,12 @@ public abstract class ScannerAdapter implements IScanner {
     }
 
     @Override
+    public List<Class<?>> scan(String packageToScan) throws Exception {
+        // scan(String... packagesToScan) must be overloaded
+        return scan(new String[] { packageToScan });
+    }
+
+    @Override
     public List<Class<?>> scan(String... packagesToScan) throws Exception {
         List<Class<?>> result = new ArrayList<Class<?>>();
         for (String packageToScan : packagesToScan) {

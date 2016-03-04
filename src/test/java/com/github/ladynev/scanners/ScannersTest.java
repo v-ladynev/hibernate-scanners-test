@@ -43,24 +43,24 @@ public class ScannersTest {
     private static final String OTHER_PACKAGE = "com.github.ladynev.scanners.other.persistent";
 
     private static final Class<?>[] SIMPLY_ENTITY_CLASSES = new Class<?>[] { FirstRootEntity.class,
-            FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
-            FirstSubpackageEntity.class, NestedEntity.class };
+        FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
+        FirstSubpackageEntity.class, NestedEntity.class };
 
     private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
-            FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
-            SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
+        FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
+        SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
 
     private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
             JAR_STATIC_ENTITY_CLASSES, Class.class);
 
     private static final Class<?>[] OTHER_ENTITY_CLASSES = new Class<?>[] { OtherRootEntity.class,
-            OtherRootEntity.OtherNestedEntity.class };
+        OtherRootEntity.OtherNestedEntity.class };
 
     private static final String JAR_DYNAMIC_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.dyn.persistent";
 
     private static final Class<?>[] JAR_DYNAMIC_ENTITY_CLASSES = new Class<?>[] {
-            FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
-            SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
+        FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
+        SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
 
     private static final Class<?>[] JAR_DYNAMIC_CLASSES = ObjectArrays.concat(
             JAR_DYNAMIC_ENTITY_CLASSES, NotJarDynEntity.class);
@@ -200,21 +200,26 @@ public class ScannersTest {
 
     private static void scan(IScanner scanner) throws Exception {
         long begin = System.currentTimeMillis();
-        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE, OTHER_PACKAGE);
+        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE, OTHER_PACKAGE,
+                "com.github.ladynev.scanners.jar.dyn.persistent");
         long elapsed = System.currentTimeMillis() - begin;
         System.out.println(String.format("%s: %d millis", scanner.getClass().getSimpleName(),
                 elapsed));
 
+        // System.out.println(classes);
+
         assertThat(classes).contains(ENTITY_CLASSES).contains(OTHER_ENTITY_CLASSES)
-        .doesNotContain(NotEntity.class, NotEntityJar.class);
+                .contains(JAR_DYNAMIC_ENTITY_CLASSES)
+                .doesNotContain(NotEntity.class, NotEntityJar.class);
     }
 
     private static void scanInDynamicJar(IScanner scanner) throws Exception {
-        File jarFile = File.createTempFile("scanners-test", ".jar");
+        // File jarFile = File.createTempFile("scanners-test", ".jar");
+        File jarFile = new File("d:/scanners-test.jar");
         try {
             scanInDynamicJar(scanner, jarFile);
         } finally {
-            jarFile.delete();
+            // jarFile.delete();
         }
     }
 

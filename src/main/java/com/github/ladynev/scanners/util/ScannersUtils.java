@@ -55,4 +55,8 @@ public final class ScannersUtils {
                 + resourcePath;
     }
 
+    public static String packageAsResourcePath(String packageName) {
+        return packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
+    }
+
 }

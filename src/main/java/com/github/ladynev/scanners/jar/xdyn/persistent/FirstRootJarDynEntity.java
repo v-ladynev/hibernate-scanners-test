@@ -1,4 +1,4 @@
-package com.github.ladynev.scanners.jar.dyn.persistent;
+package com.github.ladynev.scanners.jar.xdyn.persistent;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;

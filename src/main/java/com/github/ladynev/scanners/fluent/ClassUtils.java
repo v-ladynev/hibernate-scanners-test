@@ -4,7 +4,7 @@ package com.github.ladynev.scanners.fluent;
  *
  * @author V.Ladynev
  */
-final class ClassUtils {
+public final class ClassUtils {
 
     private static final char PACKAGE_SEPARATOR = '.';
 

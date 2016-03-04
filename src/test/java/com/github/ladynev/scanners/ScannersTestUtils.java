@@ -21,6 +21,8 @@ public final class ScannersTestUtils {
     public static void writeJarFile(File jarFile, Class<?>... classes) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        manifest.getMainAttributes().put(new Attributes.Name("Export-Package"),
+                "com.github.ladynev.scanners.jar.dyn.persistent");
         Closer closer = Closer.create();
         try {
             FileOutputStream fileOut = closer.register(new FileOutputStream(jarFile));

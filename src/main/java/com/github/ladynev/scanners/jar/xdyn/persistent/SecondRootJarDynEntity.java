@@ -1,4 +1,4 @@
-package com.github.ladynev.scanners.jar.dyn.persistent.subpackage;
+package com.github.ladynev.scanners.jar.xdyn.persistent;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -9,6 +9,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class FirstSubpackageJarDynEntity {
+public class SecondRootJarDynEntity {
 
 }

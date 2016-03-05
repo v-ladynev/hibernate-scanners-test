@@ -2,7 +2,9 @@ package com.github.ladynev.scanners;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,23 +35,24 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
         return new ArrayList<Class<?>>(annotated);
     }
 
-    private Collection<URL> getUrls(ClassLoader loader, String... packagesToSacen) {
+    private Collection<URL> getUrls(ClassLoader providedLoader, String... packagesToSacen) {
         List<URL> result = new ArrayList<URL>();
-        ClassLoader[] loaders = classLoaders(loader);
+        ClassLoader[] loaders = classLoaders(providedLoader);
 
         for (String packageToScan : packagesToSacen) {
-            result.addAll(forPackage(packageToScan, loaders));
+            forResource(ClassUtils.packageAsResourcePath(packageToScan), result, loaders);
         }
 
-        return result;
+        if (result.isEmpty()) {
+            for (ClassLoader loader : loaders) {
+                forClassLoader(loader, result);
+            }
+        }
+
+        return distinctUrls(result);
     }
 
-    private static Collection<URL> forPackage(String packageName, ClassLoader... loaders) {
-        return forResource(ClassUtils.packageAsResourcePath(packageName), loaders);
-    }
-
-    private static Collection<URL> forResource(String resourceName, ClassLoader... loaders) {
-        List<URL> result = new ArrayList<URL>();
+    private static void forResource(String resourceName, List<URL> result, ClassLoader... loaders) {
         for (ClassLoader loader : loaders) {
             try {
                 getUrls(resourceName, loader, result);
@@ -57,7 +60,6 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
 
             }
         }
-        return distinctUrls(result);
     }
 
     private static void getUrls(String resourceName, ClassLoader loader, List<URL> result)
@@ -71,6 +73,18 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
             } else {
                 result.add(url);
             }
+        }
+    }
+
+    private static void forClassLoader(ClassLoader loader, List<URL> result) {
+        while (loader != null) {
+            if (loader instanceof URLClassLoader) {
+                URL[] urls = ((URLClassLoader) loader).getURLs();
+                if (urls != null) {
+                    result.addAll(Arrays.asList(urls));
+                }
+            }
+            loader = loader.getParent();
         }
     }
 

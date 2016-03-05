@@ -1,5 +1,7 @@
 package com.github.ladynev.scanners.fluent;
 
+import java.util.List;
+
 /**
  *
  * @author V.Ladynev
@@ -31,6 +33,34 @@ public final class ClassUtils {
     public static String getClassNameFromPath(String classFilePath) {
         int classNameEnd = classFilePath.length() - CLASS_FILE_NAME_EXTENSION.length();
         return classFilePath.substring(0, classNameEnd).replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);
+    }
+
+    public static List<ClassLoader> defaultClassLoaders() {
+        List<ClassLoader> result = CollectionUtils.newArrayList();
+
+        ClassLoader contextClassLoader = contextClassLoader();
+        ClassLoader staticClassLoader = staticClassLoader();
+
+        add(result, contextClassLoader);
+        if (contextClassLoader != staticClassLoader) {
+            add(result, staticClassLoader);
+        }
+
+        return result;
+    }
+
+    private static void add(List<ClassLoader> result, ClassLoader loader) {
+        if (loader != null) {
+            result.add(loader);
+        }
+    }
+
+    public static ClassLoader contextClassLoader() {
+        return Thread.currentThread().getContextClassLoader();
+    }
+
+    public static ClassLoader staticClassLoader() {
+        return ClassUtils.class.getClassLoader();
     }
 
 }

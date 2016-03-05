@@ -22,7 +22,7 @@ dependencies {
     compile 'org.reflections:reflections:0.9.10'
     compile 'tv.cntt:annovention:1.7'
 
-    compile files('libs/entites-for-test.jar', 'libs/scanners-test.jar')
+    compile files('libs/entites-for-test.jar')
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:1.7.1'

@@ -167,12 +167,12 @@ public class ScannersTest {
         scanInDynamicJar(new ReflectionsLibrary());
     }
 
-    @Test
+    // @Test
     public void reflectionsCopyLibrary() throws Exception {
         scan(new ReflectionsCopyLibrary());
     }
 
-    // @Test
+    @Test
     public void reflectionsCopyLibraryJar() throws Exception {
         scanInDynamicJar(new ReflectionsCopyLibrary());
     }
@@ -200,26 +200,21 @@ public class ScannersTest {
 
     private static void scan(IScanner scanner) throws Exception {
         long begin = System.currentTimeMillis();
-        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE, OTHER_PACKAGE,
-                "com.github.ladynev.scanners.jar.dyn.persistent");
+        List<Class<?>> classes = scanner.scan(ROOT_PACKAGE, OTHER_PACKAGE);
         long elapsed = System.currentTimeMillis() - begin;
         System.out.println(String.format("%s: %d millis", scanner.getClass().getSimpleName(),
                 elapsed));
 
-        // System.out.println(classes);
-
         assertThat(classes).contains(ENTITY_CLASSES).contains(OTHER_ENTITY_CLASSES)
-                .contains(JAR_DYNAMIC_ENTITY_CLASSES)
-                .doesNotContain(NotEntity.class, NotEntityJar.class);
+        .doesNotContain(NotEntity.class, NotEntityJar.class);
     }
 
     private static void scanInDynamicJar(IScanner scanner) throws Exception {
-        // File jarFile = File.createTempFile("scanners-test", ".jar");
-        File jarFile = new File("d:/scanners-test.jar");
+        File jarFile = File.createTempFile("scanners-test", ".jar");
         try {
             scanInDynamicJar(scanner, jarFile);
         } finally {
-            // jarFile.delete();
+            jarFile.delete();
         }
     }
 

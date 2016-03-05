@@ -24,40 +24,11 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String... packagesToScan) throws Exception {
-        // ArrayList<URL> list = Collections.list(getLoader().getResources("com/github/ladynev/"));
-        // System.out.println(list);
+        System.out.println(getUrls(getLoader(), packagesToScan));
 
-        // System.out.println(Arrays.asList(((URLClassLoader) getLoader()).getURLs()));
-
-        /*
-        List<URL> list = Arrays.asList(((URLClassLoader) getLoader()).getURLs());
-
-        URL url = list.get(0);
-        JarURLConnection urlcon = (JarURLConnection) url.openConnection();
-        JarFile jar = urlcon.getJarFile();
-        Enumeration<JarEntry> entries = jar.entries();
-        while (entries.hasMoreElements()) {
-            String entry = entries.nextElement().getName();
-            System.out.println(entry);
-        }
-         */
-
-        /*
-        Reflections reflections = isTuned() ? new Reflections(packagesToScan, getLoader())
-                : new Reflections(packagesToScan);
-         */
-
-        // /System.out.println(ScannersUtils.urlForJar("scanners-test.jar"));
-
-        System.out.println(getUrls(null, packagesToScan));
-
-        replaceContextClassLoader();
-
-        Reflections reflections = new Reflections(packagesToScan);
+        Reflections reflections = new Reflections(packagesToScan, getLoader());
 
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(getAnnotation());
-
-        backContextClassLoader();
 
         return new ArrayList<Class<?>>(annotated);
     }
@@ -78,24 +49,29 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
     }
 
     private static Collection<URL> forResource(String resourceName, ClassLoader... loaders) {
-        final List<URL> result = new ArrayList<URL>();
-        for (ClassLoader classLoader : loaders) {
+        List<URL> result = new ArrayList<URL>();
+        for (ClassLoader loader : loaders) {
             try {
-                final Enumeration<URL> urls = classLoader.getResources(resourceName);
-                while (urls.hasMoreElements()) {
-                    final URL url = urls.nextElement();
-                    int index = url.toExternalForm().lastIndexOf(resourceName);
-                    if (index != -1) {
-                        result.add(new URL(url.toExternalForm().substring(0, index)));
-                    } else {
-                        result.add(url);
-                    }
-                }
-            } catch (IOException e) {
-                // slalow exception
+                getUrls(resourceName, loader, result);
+            } catch (IOException ignore) {
+
             }
         }
         return distinctUrls(result);
+    }
+
+    private static void getUrls(String resourceName, ClassLoader loader, List<URL> result)
+            throws IOException {
+        final Enumeration<URL> urls = loader.getResources(resourceName);
+        while (urls.hasMoreElements()) {
+            final URL url = urls.nextElement();
+            int index = url.toExternalForm().lastIndexOf(resourceName);
+            if (index != -1) {
+                result.add(new URL(url.toExternalForm().substring(0, index)));
+            } else {
+                result.add(url);
+            }
+        }
     }
 
     private static ClassLoader[] classLoaders(ClassLoader loader) {

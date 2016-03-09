@@ -13,10 +13,8 @@ public class FluentHibernateLibrary extends ScannerAdapter {
 
     @Override
     public List<Class<?>> scan(String packageToScan) throws Exception {
-        replaceContextClassLoader();
-        List<Class<?>> result = FluentEntityScanner.scanPackages(getAnnotation(), packageToScan);
-        backContextClassLoader();
-        return result;
+        return FluentEntityScanner.createForPackages(packageToScan)
+                .usingLoaders(isTuned() ? getLoader() : null).scan(getAnnotation());
     }
 
 }

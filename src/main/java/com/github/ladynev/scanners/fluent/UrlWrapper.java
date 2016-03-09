@@ -1,5 +1,6 @@
 package com.github.ladynev.scanners.fluent;
 
+import java.io.File;
 import java.net.URL;
 
 /**
@@ -22,9 +23,22 @@ public class UrlWrapper {
         return url;
     }
 
+    public boolean isFile() {
+        return ClassUtils.isFile(url);
+    }
+
+    public File getFile() {
+        return new File(url.getFile());
+    }
+
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof UrlWrapper && externalForm.equals(((UrlWrapper) obj).externalForm);
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof UrlWrapper ? externalForm.equals(((UrlWrapper) obj).externalForm)
+                : false;
     }
 
     @Override
@@ -35,6 +49,10 @@ public class UrlWrapper {
     @Override
     public String toString() {
         return url.toString();
+    }
+
+    public String getExternalForm() {
+        return externalForm;
     }
 
 }

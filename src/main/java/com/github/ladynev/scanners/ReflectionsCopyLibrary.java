@@ -35,7 +35,7 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
         List<ClassLoader> loaders = loader == null ? ClassUtils.defaultClassLoaders() : Arrays
                 .asList(loader);
 
-        return UrlExtractor.create(packagesToScan).usingLoaders(loaders).extract().keySet();
+        return UrlExtractor.createForPackages(packagesToScan).usingLoaders(loaders).extract().keySet();
     }
 
 }

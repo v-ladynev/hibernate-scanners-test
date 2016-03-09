@@ -27,8 +27,16 @@ public final class CollectionUtils {
         return array == null || array.length == 0;
     }
 
+    public static <T> T[] correctToNull(T[] array) {
+        return size(array) == 1 && array[0] == null ? null : array;
+    }
+
     public static int size(Collection<?> collection) {
         return collection == null ? 0 : collection.size();
+    }
+
+    public static <T> int size(T[] array) {
+        return array == null ? 0 : array.length;
     }
 
     public static <E> ArrayList<E> newArrayList() {

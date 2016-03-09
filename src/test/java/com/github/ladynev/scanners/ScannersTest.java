@@ -167,7 +167,7 @@ public class ScannersTest {
         scanInDynamicJar(new ReflectionsLibrary());
     }
 
-    @Test
+    // @Test
     public void reflectionsCopyLibrary() throws Exception {
         scan(new ReflectionsCopyLibrary());
     }
@@ -187,7 +187,7 @@ public class ScannersTest {
         scanInDynamicJar(new AnnoventionLibrary());
     }
 
-    // @Test
+    @Test
     public void fluentHibernateLibrary() throws Exception {
         // guava 1010 millis
         scan(new FluentHibernateLibrary());

@@ -5,12 +5,11 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,85 +30,85 @@ public final class FluentEntityScanner {
 
     private final Set<String> classResources = new HashSet<String>();
 
-    private final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
     private final String[] packagesToScan;
 
-    private final Class<? extends Annotation> annotation;
+    private Class<? extends Annotation> annotation;
 
-    private FluentEntityScanner(Class<? extends Annotation> annotation, String[] packagesToScan) {
-        this.annotation = annotation;
+    private ClassLoader[] loaders;
+
+    private FluentEntityScanner(String[] packagesToScan) {
         this.packagesToScan = packagesToScan;
+    }
+
+    /**
+     *
+     * @param packagesToScan
+     *            one or more Java package names
+     */
+    public static FluentEntityScanner createForPackages(String... packages) {
+        return new FluentEntityScanner(packages);
+    }
+
+    public FluentEntityScanner usingLoaders(ClassLoader... loaders) throws IOException {
+        this.loaders = CollectionUtils.correctToNull(loaders);
+        return this;
     }
 
     /**
      * Perform scanning for entity classes.
      *
      * @param annotation
-     *            annotation to find
-     * @param packagesToScan
-     *            one or more Java package names
+     *            an annotation to find
      *
      * @throws IOException
      *             if scanning fails for any reason
      *
      * @return entity classes
      */
-    public static List<Class<?>> scanPackages(Class<? extends Annotation> annotation,
-            String... packagesToScan) throws IOException {
-        return new FluentEntityScanner(annotation, packagesToScan).scan();
+    public List<Class<?>> scan(Class<? extends Annotation> annotation) throws IOException {
+        this.annotation = annotation;
+        return scan();
     }
 
     private List<Class<?>> scan() throws IOException {
+        List<ClassLoader> correctedLoaders = loaders == null ? ClassUtils.defaultClassLoaders()
+                : Arrays.asList(loaders);
+        Map<UrlWrapper, ClassLoader> urls = UrlExtractor.createForPackages(packagesToScan)
+                .usingLoaders(correctedLoaders).extract();
 
-        for (Map.Entry<File, ClassLoader> entry : getClassPathEntries(loader).entrySet()) {
+        for (Map.Entry<UrlWrapper, ClassLoader> entry : urls.entrySet()) {
+            // System.out.println(entry.getKey());
             scan(entry.getKey(), entry.getValue());
         }
 
         return result;
     }
 
-    private static Map<File, ClassLoader> getClassPathEntries(ClassLoader classloader) {
-        LinkedHashMap<File, ClassLoader> result = new LinkedHashMap<File, ClassLoader>();
-        // Search parent first, since it's the order ClassLoader#loadClass() uses.
-        ClassLoader parent = classloader.getParent();
-        if (parent != null) {
-            result.putAll(getClassPathEntries(parent));
+    private final void scan(UrlWrapper url, ClassLoader loader) throws IOException {
+        if (url.isFile()) {
+            scan(url.getFile(), loader);
         }
-        if (classloader instanceof URLClassLoader) {
-            URLClassLoader urlClassLoader = (URLClassLoader) classloader;
-            for (URL entry : urlClassLoader.getURLs()) {
-                if (entry.getProtocol().equals("file")) {
-                    File file = new File(entry.getFile());
-                    if (!result.containsKey(file)) {
-                        result.put(file, classloader);
-                    }
-                }
-            }
-        }
-        return result;
     }
 
-    private final void scan(File file, ClassLoader classloader) throws IOException {
+    private final void scan(File file, ClassLoader loader) throws IOException {
         // scan each file once independent of the classloader
         if (scannedUris.add(file.getCanonicalFile())) {
-            // TODO don't scan jre
-            scanFrom(file, classloader);
+            scanFrom(file, loader);
         }
     }
 
-    private void scanFrom(File file, ClassLoader classloader) throws IOException {
+    private void scanFrom(File file, ClassLoader loader) throws IOException {
         if (!file.exists()) {
             return;
         }
         if (file.isDirectory()) {
-            scanDirectory(classloader, file);
+            scanDirectory(loader, file);
         } else {
-            scanJar(file, classloader);
+            scanJar(file, loader);
         }
     }
 
-    private void scanJar(File file, ClassLoader classloader) throws IOException {
+    private void scanJar(File file, ClassLoader loader) throws IOException {
         JarFile jarFile;
         try {
             jarFile = new JarFile(file);
@@ -119,9 +118,9 @@ public final class FluentEntityScanner {
         }
         try {
             for (File path : getClassPathFromManifest(file, jarFile.getManifest())) {
-                scan(path, classloader);
+                scan(path, loader);
             }
-            scanJarFile(classloader, jarFile);
+            scanJarFile(loader, jarFile);
         } finally {
             try {
                 jarFile.close();
@@ -130,7 +129,7 @@ public final class FluentEntityScanner {
         }
     }
 
-    private void scanJarFile(ClassLoader classloader, JarFile file) {
+    private void scanJarFile(ClassLoader loader, JarFile file) {
         Enumeration<JarEntry> entries = file.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -138,12 +137,12 @@ public final class FluentEntityScanner {
                 continue;
             }
 
-            addClass(entry.getName(), classloader);
+            addClass(entry.getName(), loader);
         }
     }
 
-    private void scanDirectory(ClassLoader classloader, File directory) throws IOException {
-        scanDirectory(directory, classloader, StringUtils.EMPTY);
+    private void scanDirectory(ClassLoader loader, File directory) throws IOException {
+        scanDirectory(directory, loader, StringUtils.EMPTY);
     }
 
     private void scanDirectory(File directory, ClassLoader classloader, String packagePrefix)
@@ -185,7 +184,7 @@ public final class FluentEntityScanner {
                 // Ignore bad entry
                 continue;
             }
-            if (url.getProtocol().equals("file")) {
+            if (ClassUtils.isFile(url)) {
                 result.add(new File(url.getFile()));
             }
         }
@@ -194,7 +193,7 @@ public final class FluentEntityScanner {
     }
 
     private void addClass(String classResource, ClassLoader loader) {
-        System.out.println(classResource);
+        // System.out.println(classResource);
         if (!classResources.add(classResource)) {
             return;
         }

@@ -1,5 +1,6 @@
 package com.github.ladynev.scanners.fluent;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -13,6 +14,8 @@ public final class ClassUtils {
     private static final char PATH_SEPARATOR = '/';
 
     private static final String CLASS_FILE_NAME_EXTENSION = ".class";
+
+    private static final String URL_PROTOCOL_FILE = "file";
 
     private ClassUtils() {
 
@@ -33,6 +36,10 @@ public final class ClassUtils {
     public static String getClassNameFromPath(String classFilePath) {
         int classNameEnd = classFilePath.length() - CLASS_FILE_NAME_EXTENSION.length();
         return classFilePath.substring(0, classNameEnd).replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);
+    }
+
+    public static boolean isFile(URL url) {
+        return url != null && url.getProtocol().equals(URL_PROTOCOL_FILE);
     }
 
     public static List<ClassLoader> defaultClassLoaders() {

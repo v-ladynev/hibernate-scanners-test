@@ -23,7 +23,7 @@ public final class UrlExtractor {
         this.packages = packages;
     }
 
-    public static UrlExtractor create(String... packages) {
+    public static UrlExtractor createForPackages(String... packages) {
         return new UrlExtractor(packages);
     }
 
@@ -66,12 +66,16 @@ public final class UrlExtractor {
     }
 
     private void forClassLoader(ClassLoader loader) {
-        while (loader != null) {
-            if (loader instanceof URLClassLoader) {
-                URL[] urls = ((URLClassLoader) loader).getURLs();
-                addUrls(urls, loader);
-            }
-            loader = loader.getParent();
+        if (loader == null) {
+            return;
+        }
+
+        // search parent first, since it's the order ClassLoader#loadClass() uses
+        forClassLoader(loader.getParent());
+
+        if (loader instanceof URLClassLoader) {
+            URL[] urls = ((URLClassLoader) loader).getURLs();
+            addUrls(urls, loader);
         }
     }
 
@@ -88,6 +92,7 @@ public final class UrlExtractor {
     private void addUrl(URL url, ClassLoader loader) {
         UrlWrapper urlWrapper = new UrlWrapper(url);
         if (!result.containsKey(urlWrapper)) {
+            System.out.println(urlWrapper.getExternalForm());
             result.put(urlWrapper, loader);
         }
     }

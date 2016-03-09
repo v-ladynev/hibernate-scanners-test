@@ -1,6 +1,5 @@
 package com.github.ladynev.scanners;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +10,7 @@ import org.reflections.Reflections;
 
 import com.github.ladynev.scanners.fluent.ClassUtils;
 import com.github.ladynev.scanners.fluent.UrlExtractor;
+import com.github.ladynev.scanners.fluent.UrlWrapper;
 import com.github.ladynev.scanners.util.ScannerAdapter;
 
 /**
@@ -31,11 +31,11 @@ public class ReflectionsCopyLibrary extends ScannerAdapter {
         return new ArrayList<Class<?>>(annotated);
     }
 
-    private Collection<URL> getUrls(ClassLoader loader, String[] packagesToScan) {
+    private Collection<UrlWrapper> getUrls(ClassLoader loader, String[] packagesToScan) {
         List<ClassLoader> loaders = loader == null ? ClassUtils.defaultClassLoaders() : Arrays
                 .asList(loader);
 
-        return UrlExtractor.create(packagesToScan).usingLoaders(loaders).extract();
+        return UrlExtractor.create(packagesToScan).usingLoaders(loaders).extract().keySet();
     }
 
 }

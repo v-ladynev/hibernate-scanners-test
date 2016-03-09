@@ -23,7 +23,7 @@ public class SpringOrmLibrary extends ScannerAdapter {
     private static final String RESOURCE_PATTERN = "/**/*.class";
 
     @Override
-    public List<Class<?>> scan(String packageToScan) throws Exception {
+    public List<Class<?>> scan(String... packagesToScan) throws Exception {
         final List<Class<?>> result = new ArrayList<Class<?>>();
 
         AnnotationTypeFilter filter = new AnnotationTypeFilter(getAnnotation(), false);
@@ -31,19 +31,23 @@ public class SpringOrmLibrary extends ScannerAdapter {
         PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver(
                 getLoader());
 
-        String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
-                + ClassUtils.convertClassNameToResourcePath(packageToScan) + RESOURCE_PATTERN;
+        for (String pkg : packagesToScan) {
 
-        Resource[] resources = resourceLoader.getResources(pattern);
-        MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resourceLoader);
-        for (Resource resource : resources) {
-            if (resource.isReadable()) {
-                MetadataReader reader = readerFactory.getMetadataReader(resource);
-                String className = reader.getClassMetadata().getClassName();
-                if (filter.match(reader, readerFactory)) {
-                    result.add(ClassUtils.resolveClassName(className, getLoader()));
+            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
+                    + ClassUtils.convertClassNameToResourcePath(pkg) + RESOURCE_PATTERN;
+
+            Resource[] resources = resourceLoader.getResources(pattern);
+            MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resourceLoader);
+            for (Resource resource : resources) {
+                if (resource.isReadable()) {
+                    MetadataReader reader = readerFactory.getMetadataReader(resource);
+                    String className = reader.getClassMetadata().getClassName();
+                    if (filter.match(reader, readerFactory)) {
+                        result.add(ClassUtils.resolveClassName(className, getLoader()));
+                    }
                 }
             }
+
         }
 
         return result;

@@ -29,7 +29,6 @@ import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.PathMatcher;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
@@ -45,7 +44,7 @@ public class SpringOrmCopyLibrary extends ScannerAdapter {
 
     private static final String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 
-    private final PathMatcher pathMatcher = new AntPathMatcher();
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private ResourceLoader resourceLoader;
 

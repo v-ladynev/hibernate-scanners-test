@@ -3,11 +3,7 @@ package com.github.ladynev.scanners.fluent;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +15,7 @@ public final class UrlExtractor {
 
     private final String[] packages;
 
-    private final List<URL> result = new ArrayList<URL>();
+    private final Map<UrlWrapper, ClassLoader> result = CollectionUtils.newHashMap();
 
     private List<ClassLoader> loaders;
 
@@ -36,7 +32,7 @@ public final class UrlExtractor {
         return this;
     }
 
-    public Collection<URL> extract() {
+    public Map<UrlWrapper, ClassLoader> extract() {
         for (String p : packages) {
             forPackage(p);
         }
@@ -47,15 +43,7 @@ public final class UrlExtractor {
             }
         }
 
-        return distinct(result);
-    }
-
-    private static Collection<URL> distinct(Collection<URL> urls) {
-        Map<String, URL> result = new HashMap<String, URL>(urls.size());
-        for (URL url : urls) {
-            result.put(url.toExternalForm(), url);
-        }
-        return result.values();
+        return result;
     }
 
     private void forPackage(String packageToScan) {
@@ -69,15 +57,11 @@ public final class UrlExtractor {
     }
 
     private void getUrls(String resourceName, ClassLoader loader) throws IOException {
-        final Enumeration<URL> urls = loader.getResources(resourceName);
+        Enumeration<URL> urls = loader.getResources(resourceName);
         while (urls.hasMoreElements()) {
-            final URL url = urls.nextElement();
+            URL url = urls.nextElement();
             int index = url.toExternalForm().lastIndexOf(resourceName);
-            if (index != -1) {
-                result.add(new URL(url.toExternalForm().substring(0, index)));
-            } else {
-                result.add(url);
-            }
+            addUrl(index == -1 ? url : new URL(url.toExternalForm().substring(0, index)), loader);
         }
     }
 
@@ -85,11 +69,26 @@ public final class UrlExtractor {
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
                 URL[] urls = ((URLClassLoader) loader).getURLs();
-                if (urls != null) {
-                    result.addAll(Arrays.asList(urls));
-                }
+                addUrls(urls, loader);
             }
             loader = loader.getParent();
+        }
+    }
+
+    private void addUrls(URL[] urls, ClassLoader loader) {
+        if (urls == null) {
+            return;
+        }
+
+        for (URL url : urls) {
+            addUrl(url, loader);
+        }
+    }
+
+    private void addUrl(URL url, ClassLoader loader) {
+        UrlWrapper urlWrapper = new UrlWrapper(url);
+        if (!result.containsKey(urlWrapper)) {
+            result.put(urlWrapper, loader);
         }
     }
 

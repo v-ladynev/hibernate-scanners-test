@@ -173,20 +173,23 @@ public final class FluentEntityScanner {
         Set<File> result = new HashSet<File>();
         String classpathAttribute = manifest.getMainAttributes().getValue(
                 Attributes.Name.CLASS_PATH.toString());
-        if (classpathAttribute != null) {
-            for (String path : StringUtils.splitBySpace(classpathAttribute)) {
-                URL url;
-                try {
-                    url = getClassPathEntry(jarFile, path);
-                } catch (MalformedURLException e) {
-                    // Ignore bad entry
-                    continue;
-                }
-                if (url.getProtocol().equals("file")) {
-                    result.add(new File(url.getFile()));
-                }
+        if (classpathAttribute == null) {
+            return result;
+        }
+
+        for (String path : StringUtils.splitBySpace(classpathAttribute)) {
+            URL url;
+            try {
+                url = getClassPathEntry(jarFile, path);
+            } catch (MalformedURLException e) {
+                // Ignore bad entry
+                continue;
+            }
+            if (url.getProtocol().equals("file")) {
+                result.add(new File(url.getFile()));
             }
         }
+
         return result;
     }
 

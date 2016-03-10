@@ -25,7 +25,7 @@ public final class FluentEntityScanner {
 
     private final List<Class<?>> result = new ArrayList<Class<?>>();
 
-    private final Set<File> scannedUris = new HashSet<File>();
+    private final Set<UrlWrapper> scanned = CollectionUtils.newHashSet();
 
     private final Set<String> classResources = new HashSet<String>();
 
@@ -82,51 +82,44 @@ public final class FluentEntityScanner {
         return result;
     }
 
-    private final void scan(UrlWrapper url) throws IOException {
+    private void scan(UrlWrapper url) throws IOException {
+        // scan each url once independent of the classloader
+        if (!scanned.add(url)) {
+            return;
+        }
+
         if (url.isFile()) {
-            scan(url.getFile(), url.getLoader());
+            scanFile(url);
         } else {
-            scanJar(url.getJarFile(), url.getLoader());
+            scanJar(url);
         }
     }
 
-    private final void scan(File file, ClassLoader loader) throws IOException {
-        // scan each file once independent of the classloader
-        if (scannedUris.add(file.getCanonicalFile())) {
-            scanFrom(file, loader);
-        }
-    }
+    private void scanFile(UrlWrapper url) throws IOException {
+        File file = url.getFile();
 
-    private void scanFrom(File file, ClassLoader loader) throws IOException {
         if (!file.exists()) {
             return;
         }
         if (file.isDirectory()) {
-            scanDirectory(loader, file);
+            scanDirectory(url.getLoader(), file);
         } else {
-            scanJar(createJarFile(file), loader);
+            scanJar(url);
         }
     }
 
-    private static JarFile createJarFile(File file) {
-        try {
-            return new JarFile(file);
-        } catch (IOException e) {
-            // Not a jar file
-            return null;
-        }
-    }
+    private void scanJar(UrlWrapper url) throws IOException {
+        JarFile jarFile = url.getJarFile();
 
-    private void scanJar(JarFile jarFile, ClassLoader loader) throws IOException {
         if (jarFile == null) {
             return;
         }
 
         try {
-            for (File path : getClassPathFromManifest(jarFile)) {
-                scan(path, loader);
+            for (UrlWrapper urlFromManifest : getClassPathFromManifest(jarFile, url.getLoader())) {
+                scan(urlFromManifest);
             }
-            scanJarFile(jarFile, loader);
+            scanJarFile(jarFile, url.getLoader());
         } finally {
             try {
                 jarFile.close();
@@ -171,14 +164,15 @@ public final class FluentEntityScanner {
         }
     }
 
-    private static Set<File> getClassPathFromManifest(JarFile jarFile) throws IOException {
+    private static Set<UrlWrapper> getClassPathFromManifest(JarFile jarFile, ClassLoader loader)
+            throws IOException {
         Manifest manifest = jarFile.getManifest();
 
         if (manifest == null) {
             return Collections.emptySet();
         }
 
-        Set<File> result = new HashSet<File>();
+        Set<UrlWrapper> result = CollectionUtils.newHashSet();
         String classpathAttribute = manifest.getMainAttributes().getValue(
                 Attributes.Name.CLASS_PATH.toString());
         if (classpathAttribute == null) {
@@ -193,9 +187,7 @@ public final class FluentEntityScanner {
                 // Ignore bad entry
                 continue;
             }
-            if (ClassUtils.isFile(url)) {
-                result.add(new File(url.getFile()));
-            }
+            result.add(new UrlWrapper(url, loader));
         }
 
         return result;

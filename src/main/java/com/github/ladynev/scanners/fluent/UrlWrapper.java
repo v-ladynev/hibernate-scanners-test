@@ -7,6 +7,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.jar.JarFile;
 
+import sun.net.www.protocol.file.FileURLConnection;
+
 /**
  * This class wraps URL and ClassLoader for using it with collections. The same URLs with distinct
  * class loaders are considered as equal. It doesn't use equals and hashcode of URL.
@@ -41,8 +43,15 @@ public class UrlWrapper {
 
     public JarFile getJarFile() throws IOException {
         URLConnection urlConnection = url.openConnection();
-        return urlConnection instanceof JarURLConnection ? ((JarURLConnection) urlConnection)
-                .getJarFile() : null;
+        if (urlConnection instanceof JarURLConnection) {
+            return ((JarURLConnection) urlConnection).getJarFile();
+        }
+
+        if (urlConnection instanceof FileURLConnection) {
+            return ClassUtils.createJarFile(getFile());
+        }
+
+        return null;
     }
 
     public ClassLoader getLoader() {

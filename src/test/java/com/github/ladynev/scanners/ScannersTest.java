@@ -193,7 +193,7 @@ public class ScannersTest {
         scan(new FluentHibernateLibrary());
     }
 
-    // @Test
+    @Test
     public void fluentHibernateLibraryJar() throws Exception {
         scanInDynamicJar(new FluentHibernateLibrary());
     }

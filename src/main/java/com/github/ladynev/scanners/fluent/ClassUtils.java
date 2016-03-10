@@ -1,7 +1,10 @@
 package com.github.ladynev.scanners.fluent;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.jar.JarFile;
 
 /**
  *
@@ -40,6 +43,15 @@ public final class ClassUtils {
 
     public static boolean isFile(URL url) {
         return url != null && url.getProtocol().equals(URL_PROTOCOL_FILE);
+    }
+
+    public static JarFile createJarFile(File file) {
+        try {
+            return new JarFile(file);
+        } catch (IOException ignore) {
+            // Not a jar file
+            return null;
+        }
     }
 
     public static List<ClassLoader> defaultClassLoaders() {

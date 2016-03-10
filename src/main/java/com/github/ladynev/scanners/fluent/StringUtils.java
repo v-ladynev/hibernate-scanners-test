@@ -26,4 +26,8 @@ final class StringUtils {
         return value.split("\\s+");
     }
 
+    public static boolean equal(Object a, Object b) {
+        return a == b || a != null && a.equals(b);
+    }
+
 }

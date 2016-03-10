@@ -29,14 +29,14 @@ public final class FluentEntityScanner {
 
     private final Set<String> classResources = new HashSet<String>();
 
-    private final String[] packagesToScan;
+    private final List<String> resourcesToScan;
 
     private Class<? extends Annotation> annotation;
 
     private ClassLoader[] loaders;
 
     private FluentEntityScanner(String[] packagesToScan) {
-        this.packagesToScan = packagesToScan;
+        this.resourcesToScan = ClassUtils.packagesAsResourcePath(Arrays.asList(packagesToScan));
     }
 
     /**
@@ -45,16 +45,16 @@ public final class FluentEntityScanner {
      *            one or more Java package names
      */
     public static FluentEntityScanner createForPackages(String... packages) {
-        return new FluentEntityScanner(packages);
+        return new FluentEntityScanner(CollectionUtils.correctToEmpty(packages));
     }
 
     public FluentEntityScanner usingLoaders(ClassLoader... loaders) throws IOException {
-        this.loaders = CollectionUtils.correctToNull(loaders);
+        this.loaders = CollectionUtils.correctToEmpty(loaders);
         return this;
     }
 
     /**
-     * Perform scanning for entity classes.
+     * Perform scanning for classes with an annotation.
      *
      * @param annotation
      *            an annotation to find
@@ -70,16 +70,16 @@ public final class FluentEntityScanner {
     }
 
     private List<Class<?>> scan() throws IOException {
-        List<ClassLoader> correctedLoaders = loaders == null ? ClassUtils.defaultClassLoaders()
-                : Arrays.asList(loaders);
-        Set<UrlWrapper> urls = UrlExtractor.createForPackages(packagesToScan)
-                .usingLoaders(correctedLoaders).extract();
+        List<ClassLoader> correctedLoaders = CollectionUtils.isEmpty(loaders) ? ClassUtils
+                .defaultClassLoaders() : Arrays.asList(loaders);
+                Set<UrlWrapper> urls = UrlExtractor.createForResources(resourcesToScan)
+                        .usingLoaders(correctedLoaders).extract();
 
-        for (UrlWrapper url : urls) {
-            scan(url);
-        }
+                for (UrlWrapper url : urls) {
+                    scan(url);
+                }
 
-        return result;
+                return result;
     }
 
     private void scan(UrlWrapper url) throws IOException {
@@ -198,9 +198,8 @@ public final class FluentEntityScanner {
             return;
         }
 
-        for (String packageToScan : packagesToScan) {
-            String prefix = ClassUtils.packageAsResourcePath(packageToScan);
-            if (classResource.startsWith(prefix)) {
+        for (String resourceToScan : resourcesToScan) {
+            if (classResource.startsWith(resourceToScan)) {
                 Class<?> clazz = ClassUtils.classForName(
                         ClassUtils.getClassNameFromPath(classResource), loader);
                 if (clazz.isAnnotationPresent(annotation)) {

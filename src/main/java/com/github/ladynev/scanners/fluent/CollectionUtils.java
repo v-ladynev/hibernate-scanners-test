@@ -1,5 +1,6 @@
 package com.github.ladynev.scanners.fluent;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,8 +29,15 @@ public final class CollectionUtils {
         return array == null || array.length == 0;
     }
 
-    public static <T> T[] correctToNull(T[] array) {
-        return size(array) == 1 && array[0] == null ? null : array;
+    public static <T> T[] correctToEmpty(T[] array) {
+        return size(array) == 1 && array[0] == null ? newArray(array, 0) : array;
+    }
+
+    public static <T> T[] newArray(T[] reference, int length) {
+        Class<?> type = reference.getClass().getComponentType();
+        @SuppressWarnings("unchecked")
+        T[] result = (T[]) Array.newInstance(type, length);
+        return result;
     }
 
     public static int size(Collection<?> collection) {
@@ -42,6 +50,10 @@ public final class CollectionUtils {
 
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<E>();
+    }
+
+    public static <E> ArrayList<E> newArrayListWithCapacity(int size) {
+        return new ArrayList<E>(size);
     }
 
     public static <K, V> HashMap<K, V> newHashMap() {

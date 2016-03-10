@@ -179,11 +179,13 @@ public class ScannersTest {
 
     // @Test
     public void annoventionsLibrary() throws Exception {
+        // used Javassist
         scan(new AnnoventionLibrary());
     }
 
     // @Test
     public void annoventionsLibraryJar() throws Exception {
+        // used class parser
         scanInDynamicJar(new AnnoventionLibrary());
     }
 

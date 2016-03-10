@@ -3,14 +3,16 @@ package com.github.ladynev.scanners;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.ladynev.scanners.util.ScannersUtils;
 import com.github.ladynev.scanners.util.ScannerAdapter;
+import com.github.ladynev.scanners.util.ScannersUtils;
 import com.impetus.annovention.ClasspathDiscoverer;
 import com.impetus.annovention.Discoverer;
 import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
 
 /**
  * https://github.com/ngocdaothanh/annovention
+ *
+ * used Javassist
  *
  * @author V.Ladynev
  */

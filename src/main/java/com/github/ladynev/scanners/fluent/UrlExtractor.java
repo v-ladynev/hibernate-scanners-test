@@ -13,18 +13,18 @@ import java.util.Set;
  */
 public final class UrlExtractor {
 
-    private final String[] packages;
+    private final List<String> resources;
 
     private final Set<UrlWrapper> result = CollectionUtils.newHashSet();
 
     private List<ClassLoader> loaders;
 
-    private UrlExtractor(String... packages) {
-        this.packages = packages;
+    private UrlExtractor(List<String> resources) {
+        this.resources = resources;
     }
 
-    public static UrlExtractor createForPackages(String... packages) {
-        return new UrlExtractor(packages);
+    public static UrlExtractor createForResources(List<String> resources) {
+        return new UrlExtractor(resources);
     }
 
     public UrlExtractor usingLoaders(List<ClassLoader> loaders) {
@@ -33,8 +33,8 @@ public final class UrlExtractor {
     }
 
     public Set<UrlWrapper> extract() {
-        for (String p : packages) {
-            forPackage(p);
+        for (String resource : resources) {
+            forResource(resource);
         }
 
         if (result.isEmpty()) {
@@ -46,10 +46,10 @@ public final class UrlExtractor {
         return result;
     }
 
-    private void forPackage(String packageToScan) {
+    private void forResource(String resourceToScan) {
         for (ClassLoader loader : loaders) {
             try {
-                getUrls(ClassUtils.packageAsResourcePath(packageToScan), loader);
+                getUrls(resourceToScan, loader);
             } catch (IOException ignore) {
 
             }

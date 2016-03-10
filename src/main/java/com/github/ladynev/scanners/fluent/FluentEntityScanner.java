@@ -76,7 +76,6 @@ public final class FluentEntityScanner {
                 .usingLoaders(correctedLoaders).extract();
 
         for (UrlWrapper url : urls) {
-            System.out.println(url);
             scan(url);
         }
 
@@ -86,6 +85,8 @@ public final class FluentEntityScanner {
     private final void scan(UrlWrapper url) throws IOException {
         if (url.isFile()) {
             scan(url.getFile(), url.getLoader());
+        } else {
+            scanJar(url.getJarFile(), url.getLoader());
         }
     }
 
@@ -103,23 +104,29 @@ public final class FluentEntityScanner {
         if (file.isDirectory()) {
             scanDirectory(loader, file);
         } else {
-            scanJar(file, loader);
+            scanJar(createJarFile(file), loader);
         }
     }
 
-    private void scanJar(File file, ClassLoader loader) throws IOException {
-        JarFile jarFile;
+    private static JarFile createJarFile(File file) {
         try {
-            jarFile = new JarFile(file);
+            return new JarFile(file);
         } catch (IOException e) {
             // Not a jar file
+            return null;
+        }
+    }
+
+    private void scanJar(JarFile jarFile, ClassLoader loader) throws IOException {
+        if (jarFile == null) {
             return;
         }
+
         try {
-            for (File path : getClassPathFromManifest(file, jarFile.getManifest())) {
+            for (File path : getClassPathFromManifest(jarFile)) {
                 scan(path, loader);
             }
-            scanJarFile(loader, jarFile);
+            scanJarFile(jarFile, loader);
         } finally {
             try {
                 jarFile.close();
@@ -128,7 +135,7 @@ public final class FluentEntityScanner {
         }
     }
 
-    private void scanJarFile(ClassLoader loader, JarFile file) {
+    private void scanJarFile(JarFile file, ClassLoader loader) {
         Enumeration<JarEntry> entries = file.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -164,10 +171,13 @@ public final class FluentEntityScanner {
         }
     }
 
-    private static Set<File> getClassPathFromManifest(File jarFile, Manifest manifest) {
+    private static Set<File> getClassPathFromManifest(JarFile jarFile) throws IOException {
+        Manifest manifest = jarFile.getManifest();
+
         if (manifest == null) {
             return Collections.emptySet();
         }
+
         Set<File> result = new HashSet<File>();
         String classpathAttribute = manifest.getMainAttributes().getValue(
                 Attributes.Name.CLASS_PATH.toString());
@@ -209,8 +219,8 @@ public final class FluentEntityScanner {
         }
     }
 
-    private static URL getClassPathEntry(File jarFile, String path) throws MalformedURLException {
-        return new URL(jarFile.toURI().toURL(), path);
+    private static URL getClassPathEntry(JarFile jarFile, String path) throws MalformedURLException {
+        return new URL(new File(jarFile.getName()).toURI().toURL(), path);
     }
 
 }

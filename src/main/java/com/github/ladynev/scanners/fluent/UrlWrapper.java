@@ -1,7 +1,11 @@
 package com.github.ladynev.scanners.fluent;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.jar.JarFile;
 
 /**
  * This class wraps URL and ClassLoader for using it with collections. The same URLs with distinct
@@ -33,6 +37,12 @@ public class UrlWrapper {
 
     public File getFile() {
         return new File(url.getFile());
+    }
+
+    public JarFile getJarFile() throws IOException {
+        URLConnection urlConnection = url.openConnection();
+        return urlConnection instanceof JarURLConnection ? ((JarURLConnection) urlConnection)
+                .getJarFile() : null;
     }
 
     public ClassLoader getLoader() {

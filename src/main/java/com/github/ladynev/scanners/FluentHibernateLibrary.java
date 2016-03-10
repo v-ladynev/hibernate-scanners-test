@@ -12,8 +12,8 @@ import com.github.ladynev.scanners.util.ScannerAdapter;
 public class FluentHibernateLibrary extends ScannerAdapter {
 
     @Override
-    public List<Class<?>> scan(String packageToScan) throws Exception {
-        return FluentEntityScanner.createForPackages(packageToScan)
+    public List<Class<?>> scan(String... packagesToScan) throws Exception {
+        return FluentEntityScanner.createForPackages(packagesToScan)
                 .usingLoaders(isTuned() ? getLoader() : null).scan(getAnnotation());
     }
 

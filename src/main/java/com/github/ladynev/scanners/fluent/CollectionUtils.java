@@ -3,6 +3,7 @@ package com.github.ladynev.scanners.fluent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -45,6 +46,10 @@ public final class CollectionUtils {
 
     public static <K, V> HashMap<K, V> newHashMap() {
         return new HashMap<K, V>();
+    }
+
+    public static <K> HashSet<K> newHashSet() {
+        return new HashSet<K>();
     }
 
 }

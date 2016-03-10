@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -73,20 +72,20 @@ public final class FluentEntityScanner {
     private List<Class<?>> scan() throws IOException {
         List<ClassLoader> correctedLoaders = loaders == null ? ClassUtils.defaultClassLoaders()
                 : Arrays.asList(loaders);
-        Map<UrlWrapper, ClassLoader> urls = UrlExtractor.createForPackages(packagesToScan)
+        Set<UrlWrapper> urls = UrlExtractor.createForPackages(packagesToScan)
                 .usingLoaders(correctedLoaders).extract();
 
-        for (Map.Entry<UrlWrapper, ClassLoader> entry : urls.entrySet()) {
-            // System.out.println(entry.getKey());
-            scan(entry.getKey(), entry.getValue());
+        for (UrlWrapper url : urls) {
+            System.out.println(url);
+            scan(url);
         }
 
         return result;
     }
 
-    private final void scan(UrlWrapper url, ClassLoader loader) throws IOException {
+    private final void scan(UrlWrapper url) throws IOException {
         if (url.isFile()) {
-            scan(url.getFile(), loader);
+            scan(url.getFile(), url.getLoader());
         }
     }
 
@@ -193,7 +192,6 @@ public final class FluentEntityScanner {
     }
 
     private void addClass(String classResource, ClassLoader loader) {
-        // System.out.println(classResource);
         if (!classResources.add(classResource)) {
             return;
         }

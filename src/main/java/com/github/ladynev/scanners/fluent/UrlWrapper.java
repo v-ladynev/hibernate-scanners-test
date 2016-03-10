@@ -4,7 +4,8 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * This class wraps URL for using it with collections. It doesn't use equals and hashcode of URL.
+ * This class wraps URL and ClassLoader for using it with collections. The same URLs with distinct
+ * class loaders are considered as equal. It doesn't use equals and hashcode of URL.
  *
  * @author V.Ladynev
  */
@@ -14,8 +15,11 @@ public class UrlWrapper {
 
     private final String externalForm;
 
-    public UrlWrapper(URL url) {
+    private final ClassLoader loader;
+
+    public UrlWrapper(URL url, ClassLoader loader) {
         this.url = url;
+        this.loader = loader;
         externalForm = url.toExternalForm();
     }
 
@@ -29,6 +33,10 @@ public class UrlWrapper {
 
     public File getFile() {
         return new File(url.getFile());
+    }
+
+    public ClassLoader getLoader() {
+        return loader;
     }
 
     @Override

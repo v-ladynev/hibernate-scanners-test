@@ -5,7 +5,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -15,7 +15,7 @@ public final class UrlExtractor {
 
     private final String[] packages;
 
-    private final Map<UrlWrapper, ClassLoader> result = CollectionUtils.newHashMap();
+    private final Set<UrlWrapper> result = CollectionUtils.newHashSet();
 
     private List<ClassLoader> loaders;
 
@@ -32,7 +32,7 @@ public final class UrlExtractor {
         return this;
     }
 
-    public Map<UrlWrapper, ClassLoader> extract() {
+    public Set<UrlWrapper> extract() {
         for (String p : packages) {
             forPackage(p);
         }
@@ -90,10 +90,9 @@ public final class UrlExtractor {
     }
 
     private void addUrl(URL url, ClassLoader loader) {
-        UrlWrapper urlWrapper = new UrlWrapper(url);
-        if (!result.containsKey(urlWrapper)) {
-            System.out.println(urlWrapper.getExternalForm());
-            result.put(urlWrapper, loader);
+        UrlWrapper urlWrapper = new UrlWrapper(url, loader);
+        if (!result.contains(urlWrapper)) {
+            result.add(urlWrapper);
         }
     }
 

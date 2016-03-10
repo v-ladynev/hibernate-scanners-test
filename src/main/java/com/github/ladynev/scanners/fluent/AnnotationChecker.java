@@ -1,12 +1,9 @@
 package com.github.ladynev.scanners.fluent;
 
 import java.io.DataInput;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
-
-import com.impetus.annovention.resource.ResourceIterator;
 
 /**
  * Based on <a href="https://github.com/rmuller/infomas-asl/tree/master/annotation-detector">
@@ -14,7 +11,7 @@ import com.impetus.annovention.resource.ResourceIterator;
  *
  * @author V.Ladynev
  */
-public class ClassParser {
+public class AnnotationChecker {
 
     // Constant Pool type tags
     private static final int CP_UTF8 = 1;
@@ -83,30 +80,21 @@ public class ClassParser {
 
     private final String annotationDescriptor;
 
-    public ClassParser(Class<? extends Annotation> annotation) {
+    public AnnotationChecker(Class<? extends Annotation> annotation) {
         annotationDescriptor = ClassUtils.toDescriptor(annotation);
     }
 
-    private void detect(final ResourceIterator iterator) throws IOException {
-        InputStream stream;
-        while ((stream = iterator.next()) != null) {
-            try {
-                cpBuffer.readFrom(stream);
-                if (hasCafebabe(cpBuffer)) {
-                    detect(cpBuffer);
-                } // else ignore
-            } catch (Throwable t) {
-                // catch all errors
-                if (!(stream instanceof FileInputStream)) {
-                    // in case of an error we close the ZIP File here
-                    stream.close();
-                }
-            } finally {
-                // closing InputStream from ZIP Entry is handled by ZipFileIterator
-                if (stream instanceof FileInputStream) {
-                    stream.close();
-                }
-            }
+    /**
+     *
+     * @param stream
+     *            a class file stream, it is closed in this method
+     */
+    public boolean detect(InputStream stream) throws IOException {
+        try {
+            cpBuffer.readFrom(stream);
+            return hasCafebabe(cpBuffer) ? detect(cpBuffer) : false;
+        } finally {
+            stream.close();
         }
     }
 
@@ -117,7 +105,7 @@ public class ClassParser {
     /**
      * Inspect the given (Java) class file in streaming mode.
      */
-    private void detect(final DataInput di) throws IOException {
+    private boolean detect(final DataInput di) throws IOException {
         readVersion(di);
         readConstantPoolEntries(di);
         readAccessFlags(di);
@@ -126,7 +114,7 @@ public class ClassParser {
         readInterfaces(di);
         readFields(di);
         readMethods(di);
-        readAttributes(di, 'T');
+        return checkTypeAnnotations(di);
     }
 
     private void readVersion(final DataInput di) throws IOException {
@@ -188,7 +176,7 @@ public class ClassParser {
     }
 
     private void readThisClass(final DataInput di) throws IOException {
-        typeName = resolveUtf8(di);
+        resolveUtf8(di);
     }
 
     private void readSuperClass(final DataInput di) throws IOException {
@@ -205,9 +193,9 @@ public class ClassParser {
 
         for (int i = 0; i < count; ++i) {
             readAccessFlags(di);
-            memberName = resolveUtf8(di);
+            di.skipBytes(2); // memberName
             di.skipBytes(2); // unsigned short
-            readAttributes(di, 'F');
+            skipAttributes(di);
         }
     }
 
@@ -216,30 +204,46 @@ public class ClassParser {
 
         for (int i = 0; i < count; ++i) {
             readAccessFlags(di);
-            memberName = resolveUtf8(di);
+            di.skipBytes(2); // memberName
             di.skipBytes(2); // unsigned short
-            readAttributes(di, 'M');
+            skipAttributes(di);
         }
     }
 
-    private void readAttributes(final DataInput di, final char reporterType) throws IOException {
-        final int count = di.readUnsignedShort();
+    private boolean checkTypeAnnotations(final DataInput di) throws IOException {
+        int count = di.readUnsignedShort();
 
         for (int i = 0; i < count; ++i) {
-            final String name = resolveUtf8(di);
+            String name = resolveUtf8(di);
             // in bytes, use this to skip the attribute info block
-            final int length = di.readInt();
+            int length = di.readInt();
             if ("RuntimeVisibleAnnotations".equals(name)
                     || "RuntimeInvisibleAnnotations".equals(name)) {
-                checkTypeAnnotations(di, reporterType);
+                if (checkTypeAnnotationsHelper(di)) {
+                    return true;
+                }
             } else {
                 di.skipBytes(length);
             }
         }
+
+        return false;
     }
 
-    private boolean checkTypeAnnotations(final DataInput di, final char reporterType)
-            throws IOException {
+    private void skipAttributes(final DataInput di) throws IOException {
+        final int count = di.readUnsignedShort();
+
+        for (int i = 0; i < count; ++i) {
+
+            String name = resolveUtf8(di);
+
+            // in bytes, use this to skip the attribute info block
+            int length = di.readInt();
+            di.skipBytes(length);
+        }
+    }
+
+    private boolean checkTypeAnnotationsHelper(final DataInput di) throws IOException {
         // the number of Runtime(In)VisibleAnnotations
         final int count = di.readUnsignedShort();
 

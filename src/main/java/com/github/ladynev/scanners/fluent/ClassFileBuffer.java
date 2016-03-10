@@ -126,6 +126,10 @@ final class ClassFileBuffer implements DataInput {
         pointer += length;
     }
 
+    public void skipUnsignedShort() throws IOException {
+        skipBytes(2);
+    }
+
     @Override
     public int skipBytes(final int n) throws IOException {
         seek(pointer + n);

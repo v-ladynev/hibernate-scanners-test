@@ -20,7 +20,7 @@ public final class UrlExtractor {
     private List<ClassLoader> loaders;
 
     private UrlExtractor(List<String> resources) {
-        this.resources = resources;
+        this.resources = CollectionUtils.correctToEmpty(resources);
     }
 
     public static UrlExtractor createForResources(List<String> resources) {
@@ -28,7 +28,7 @@ public final class UrlExtractor {
     }
 
     public UrlExtractor usingLoaders(List<ClassLoader> loaders) {
-        this.loaders = loaders;
+        this.loaders = CollectionUtils.correctToEmpty(loaders);
         return this;
     }
 

@@ -3,6 +3,7 @@ package com.github.ladynev.scanners.fluent;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +30,7 @@ public final class CollectionUtils {
         return array == null || array.length == 0;
     }
 
-    public static <T> T[] correctToEmpty(T[] array) {
+    public static <T> T[] correctOneNullToEmpty(T[] array) {
         return size(array) == 1 && array[0] == null ? newArray(array, 0) : array;
     }
 
@@ -38,6 +39,10 @@ public final class CollectionUtils {
         @SuppressWarnings("unchecked")
         T[] result = (T[]) Array.newInstance(type, length);
         return result;
+    }
+
+    public static <T> List<T> correctToEmpty(List<T> list) {
+        return list == null ? Collections.<T> emptyList() : list;
     }
 
     public static int size(Collection<?> collection) {

@@ -42,7 +42,7 @@ public class AnnotationsCheckerTest {
     }
 
     private static boolean check(Class<?> clazz) throws Exception {
-        return annotationChecker.check(classAsStream(clazz));
+        return annotationChecker.hasAnnotation(classAsStream(clazz));
     }
 
     private static InputStream classAsStream(Class<?> clazz) {

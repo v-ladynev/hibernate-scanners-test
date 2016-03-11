@@ -2,7 +2,6 @@ package com.github.ladynev.scanners.fluent;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import java.util.jar.Manifest;
  *
  * @author V.Ladynev
  */
-public final class FluentEntityScanner {
+final class FluentClasspathScanner {
 
     private final List<Class<?>> result = new ArrayList<Class<?>>();
 
@@ -29,57 +28,37 @@ public final class FluentEntityScanner {
 
     private final Set<String> scannedResources = new HashSet<String>();
 
-    private final List<String> resourcesToScan;
-
-    private AnnotationChecker checker;
+    private List<String> resourcesToScan;
 
     private ClassLoader[] loaders;
 
-    private FluentEntityScanner(String[] packagesToScan) {
+    private final IClassAcceptor acceptor;
+
+    private FluentClasspathScanner(IClassAcceptor acceptor) {
+        this.acceptor = acceptor;
+    }
+
+    public void setPackagesToScan(String[] packagesToScan) {
         this.resourcesToScan = ClassUtils.packagesAsResourcePath(Arrays.asList(packagesToScan));
     }
 
-    /**
-     *
-     * @param packagesToScan
-     *            one or more Java package names
-     */
-    public static FluentEntityScanner createForPackages(String... packages) {
-        return new FluentEntityScanner(CollectionUtils.correctOneNullToEmpty(packages));
+    public void setLoaders(ClassLoader[] loaders) throws IOException {
+        this.loaders = loaders;
     }
 
-    public FluentEntityScanner usingLoaders(ClassLoader... loaders) throws IOException {
-        this.loaders = CollectionUtils.correctOneNullToEmpty(loaders);
-        return this;
-    }
-
-    /**
-     * Perform scanning for classes with an annotation.
-     *
-     * @param annotation
-     *            an annotation to find
-     *
-     * @throws IOException
-     *             if scanning fails for any reason
-     *
-     * @return entity classes
-     */
-    public List<Class<?>> scan(Class<? extends Annotation> annotation) throws IOException {
-        checker = new AnnotationChecker(annotation);
-        return scan();
-    }
-
-    private List<Class<?>> scan() throws IOException {
-        List<ClassLoader> correctedLoaders = CollectionUtils.isEmpty(loaders) ? ClassUtils
-                .defaultClassLoaders() : Arrays.asList(loaders);
-        Set<UrlWrapper> urls = UrlExtractor.createForResources(resourcesToScan)
-                .usingLoaders(correctedLoaders).extract();
-
-        for (UrlWrapper url : urls) {
+    public List<Class<?>> scan() throws IOException {
+        for (UrlWrapper url : getUrls()) {
             scan(url);
         }
 
         return result;
+    }
+
+    private Set<UrlWrapper> getUrls() {
+        List<ClassLoader> correctedLoaders = CollectionUtils.isEmpty(loaders) ? ClassUtils
+                .defaultClassLoaders() : Arrays.asList(loaders);
+                return UrlExtractor.createForResources(resourcesToScan).usingLoaders(correctedLoaders)
+                        .extract();
     }
 
     private void scan(UrlWrapper url) throws IOException {
@@ -198,26 +177,20 @@ public final class FluentEntityScanner {
             return;
         }
 
-        if (isAddToResult(classResource, loader)) {
+        if (acceptor.accept(classResource, loader)) {
             Class<?> clazz = ClassUtils.classForName(
                     ClassUtils.getClassNameFromPath(classResource), loader);
             result.add(clazz);
         }
     }
 
-    private boolean isAddToResult(String classResource, ClassLoader loader) throws IOException {
-        for (String resourceToScan : resourcesToScan) {
-            if (classResource.startsWith(resourceToScan)
-                    && checker.hasAnnotation(loader.getResourceAsStream(classResource))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private static URL getClassPathEntry(JarFile jarFile, String path) throws MalformedURLException {
         return new URL(new File(jarFile.getName()).toURI().toURL(), path);
+    }
+
+    public interface IClassAcceptor {
+
+        boolean accept(String classResource, ClassLoader loader);
     }
 
 }

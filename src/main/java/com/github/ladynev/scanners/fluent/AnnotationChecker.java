@@ -57,15 +57,15 @@ public class AnnotationChecker {
 
     /**
      *
-     * @param stream
+     * @param classStream
      *            a class file stream, it is closed in this method
      */
-    public boolean check(InputStream stream) throws IOException {
+    public boolean hasAnnotation(InputStream classStream) throws IOException {
         try {
-            buffer.readFrom(stream);
+            buffer.readFrom(classStream);
             return hasCafebabe() ? detect() : false;
         } finally {
-            stream.close();
+            classStream.close();
         }
     }
 

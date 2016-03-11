@@ -1,6 +1,5 @@
 package com.github.ladynev.scanners.fluent;
 
-import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -13,34 +12,7 @@ import java.lang.annotation.Annotation;
  */
 public class AnnotationChecker {
 
-    // Constant Pool type tags
-    private static final int CP_UTF8 = 1;
-
-    private static final int CP_INTEGER = 3;
-
-    private static final int CP_FLOAT = 4;
-
-    private static final int CP_LONG = 5;
-
-    private static final int CP_DOUBLE = 6;
-
-    private static final int CP_CLASS = 7;
-
-    private static final int CP_STRING = 8;
-
-    private static final int CP_REF_FIELD = 9;
-
-    private static final int CP_REF_METHOD = 10;
-
-    private static final int CP_REF_INTERFACE = 11;
-
-    private static final int CP_NAME_AND_TYPE = 12;
-
-    private static final int CP_METHOD_HANDLE = 15;
-
-    private static final int CP_METHOD_TYPE = 16;
-
-    private static final int CP_INVOKE_DYNAMIC = 18;
+    private static final int HEAD = 0xCAFEBABE;
 
     // AnnotationElementValue
 
@@ -73,10 +45,9 @@ public class AnnotationChecker {
     private static final int ARRAY = '[';
 
     // The buffer is reused during the life cycle of this AnnotationDetector instance
-    private final ClassFileBuffer cpBuffer = new ClassFileBuffer();
+    private final ClassFileBuffer buffer = new ClassFileBuffer();
 
-    // Reusing the constantPool is not needed for better performance
-    private Object[] constantPool;
+    private final ConstantPool constantPool = new ConstantPool();
 
     private final String annotationDescriptor;
 
@@ -89,166 +60,120 @@ public class AnnotationChecker {
      * @param stream
      *            a class file stream, it is closed in this method
      */
-    public boolean detect(InputStream stream) throws IOException {
+    public boolean check(InputStream stream) throws IOException {
         try {
-            cpBuffer.readFrom(stream);
-            return hasCafebabe(cpBuffer) ? detect(cpBuffer) : false;
+            buffer.readFrom(stream);
+            return hasCafebabe() ? detect() : false;
         } finally {
             stream.close();
         }
     }
 
-    private boolean hasCafebabe(final ClassFileBuffer buffer) throws IOException {
-        return buffer.size() > 4 && buffer.readInt() == 0xCAFEBABE;
+    private boolean hasCafebabe() throws IOException {
+        return buffer.size() > 4 && buffer.readInt() == HEAD;
     }
 
     /**
      * Inspect the given (Java) class file in streaming mode.
      */
-    private boolean detect(final DataInput di) throws IOException {
-        readVersion(di);
-        readConstantPoolEntries(di);
-        readAccessFlags(di);
-        readThisClass(di);
-        readSuperClass(di);
-        readInterfaces(di);
-        readFields(di);
-        readMethods(di);
-        return checkTypeAnnotations(di);
+    private boolean detect() throws IOException {
+        readVersion();
+        constantPool.readEntries(buffer);
+        readAccessFlags();
+        readThisClass();
+        readSuperClass();
+        readInterfaces();
+        readFields();
+        readMethods();
+        return checkTypeAnnotations();
     }
 
-    private void readVersion(final DataInput di) throws IOException {
+    private void readVersion() throws IOException {
         // sequence: minor version, major version (argument_index is 1-based)
-        di.skipBytes(4);
+        buffer.skipBytes(4);
     }
 
-    private void readConstantPoolEntries(final DataInput di) throws IOException {
-        final int count = di.readUnsignedShort();
-        constantPool = new Object[count];
-        for (int i = 1; i < count; ++i) {
-            if (readConstantPoolEntry(di, i)) {
-                // double slot
-                ++i;
-            }
-        }
+    private void readAccessFlags() throws IOException {
+        buffer.skipUnsignedShort();
     }
 
-    /**
-     * Return {@code true} if a double slot is read (in case of Double or Long constant).
-     */
-    private boolean readConstantPoolEntry(final DataInput di, final int index) throws IOException {
-        final int tag = di.readUnsignedByte();
-        switch (tag) {
-        case CP_METHOD_TYPE:
-            di.skipBytes(2); // readUnsignedShort()
-            return false;
-        case CP_METHOD_HANDLE:
-            di.skipBytes(3);
-            return false;
-        case CP_INTEGER:
-        case CP_FLOAT:
-        case CP_REF_FIELD:
-        case CP_REF_METHOD:
-        case CP_REF_INTERFACE:
-        case CP_NAME_AND_TYPE:
-        case CP_INVOKE_DYNAMIC:
-            di.skipBytes(4); // readInt() / readFloat() / readUnsignedShort() * 2
-            return false;
-        case CP_LONG:
-        case CP_DOUBLE:
-            di.skipBytes(8); // readLong() / readDouble()
-            return true;
-        case CP_UTF8:
-            constantPool[index] = di.readUTF();
-            return false;
-        case CP_CLASS:
-        case CP_STRING:
-            // reference to CP_UTF8 entry. The referenced index can have a higher number!
-            constantPool[index] = di.readUnsignedShort();
-            return false;
-        default:
-            throw new ClassFormatError("Unkown tag value for constant pool entry: " + tag);
-        }
+    private void readThisClass() throws IOException {
+        buffer.skipUnsignedShort();
     }
 
-    private void readAccessFlags(final DataInput di) throws IOException {
-        di.skipBytes(2); // u2
+    private void readSuperClass() throws IOException {
+        buffer.skipUnsignedShort();
     }
 
-    private void readThisClass(final DataInput di) throws IOException {
-        resolveUtf8(di);
+    private void readInterfaces() throws IOException {
+        int count = buffer.readUnsignedShort();
+        buffer.skipBytes(count * 2); // count * u2
     }
 
-    private void readSuperClass(final DataInput di) throws IOException {
-        di.skipBytes(2); // u2
+    private void readFields() throws IOException {
+        readInfoStruct();
     }
 
-    private void readInterfaces(final DataInput di) throws IOException {
-        final int count = di.readUnsignedShort();
-        di.skipBytes(count * 2); // count * u2
+    private void readMethods() throws IOException {
+        readInfoStruct();
     }
 
-    private void readFields(final DataInput di) throws IOException {
-        final int count = di.readUnsignedShort();
+    private void readInfoStruct() throws IOException {
+        int count = buffer.readUnsignedShort();
 
         for (int i = 0; i < count; ++i) {
-            readAccessFlags(di);
-            di.skipBytes(2); // memberName
-            di.skipBytes(2); // unsigned short
-            skipAttributes(di);
+            readAccessFlags();
+            readNameIndex();
+            readDescriptorIndex();
+            readAttributes();
         }
     }
 
-    private void readMethods(final DataInput di) throws IOException {
-        final int count = di.readUnsignedShort();
+    private void readAttributes() throws IOException {
+        int count = buffer.readUnsignedShort();
 
         for (int i = 0; i < count; ++i) {
-            readAccessFlags(di);
-            di.skipBytes(2); // memberName
-            di.skipBytes(2); // unsigned short
-            skipAttributes(di);
-        }
-    }
-
-    private boolean checkTypeAnnotations(final DataInput di) throws IOException {
-        int count = di.readUnsignedShort();
-
-        for (int i = 0; i < count; ++i) {
-            String name = resolveUtf8(di);
+            readNameIndex();
             // in bytes, use this to skip the attribute info block
-            int length = di.readInt();
+            int length = buffer.readInt();
+            buffer.skipBytes(length);
+        }
+    }
+
+    private void readNameIndex() throws IOException {
+        buffer.skipUnsignedShort();
+    }
+
+    private void readDescriptorIndex() throws IOException {
+        buffer.skipUnsignedShort();
+    }
+
+    private boolean checkTypeAnnotations() throws IOException {
+        int count = buffer.readUnsignedShort();
+
+        for (int i = 0; i < count; ++i) {
+            String name = resolveUtf8();
+            // in bytes, use this to skip the attribute info block
+            int length = buffer.readInt();
             if ("RuntimeVisibleAnnotations".equals(name)
                     || "RuntimeInvisibleAnnotations".equals(name)) {
-                if (checkTypeAnnotationsHelper(di)) {
+                if (checkTypeAnnotationsHelper()) {
                     return true;
                 }
             } else {
-                di.skipBytes(length);
+                buffer.skipBytes(length);
             }
         }
 
         return false;
     }
 
-    private void skipAttributes(final DataInput di) throws IOException {
-        final int count = di.readUnsignedShort();
-
-        for (int i = 0; i < count; ++i) {
-
-            String name = resolveUtf8(di);
-
-            // in bytes, use this to skip the attribute info block
-            int length = di.readInt();
-            di.skipBytes(length);
-        }
-    }
-
-    private boolean checkTypeAnnotationsHelper(final DataInput di) throws IOException {
+    private boolean checkTypeAnnotationsHelper() throws IOException {
         // the number of Runtime(In)VisibleAnnotations
-        final int count = di.readUnsignedShort();
+        int count = buffer.readUnsignedShort();
 
         for (int i = 0; i < count; ++i) {
-            String descriptor = readAnnotation(di);
+            String descriptor = readAnnotation();
             if (StringUtils.equal(descriptor, annotationDescriptor)) {
                 return true;
             }
@@ -257,20 +182,20 @@ public class AnnotationChecker {
         return false;
     }
 
-    private String readAnnotation(final DataInput di) throws IOException {
-        final String rawTypeName = resolveUtf8(di);
+    private String readAnnotation() throws IOException {
+        String rawTypeName = resolveUtf8();
         // num_element_value_pairs
-        final int count = di.readUnsignedShort();
+        int count = buffer.readUnsignedShort();
 
         for (int i = 0; i < count; ++i) {
-            di.skipBytes(2);
-            readAnnotationElementValue(di);
+            buffer.skipUnsignedShort();
+            readAnnotationElementValue();
         }
         return rawTypeName;
     }
 
-    private void readAnnotationElementValue(final DataInput di) throws IOException {
-        final int tag = di.readUnsignedByte();
+    private void readAnnotationElementValue() throws IOException {
+        int tag = buffer.readUnsignedByte();
 
         switch (tag) {
         case BYTE:
@@ -282,21 +207,21 @@ public class AnnotationChecker {
         case SHORT:
         case BOOLEAN:
         case STRING:
-            di.skipBytes(2);
+            buffer.skipUnsignedShort();
             break;
         case ENUM:
-            di.skipBytes(4); // 2 * u2
+            buffer.skipBytes(4); // 2 * u2
             break;
         case CLASS:
-            di.skipBytes(2);
+            buffer.skipUnsignedShort();
             break;
         case ANNOTATION:
-            readAnnotation(di);
+            readAnnotation();
             break;
         case ARRAY:
-            final int count = di.readUnsignedShort();
+            int count = buffer.readUnsignedShort();
             for (int i = 0; i < count; ++i) {
-                readAnnotationElementValue(di);
+                readAnnotationElementValue();
             }
             break;
         default:
@@ -309,10 +234,9 @@ public class AnnotationChecker {
      * Look up the String value, identified by the u2 index value from constant pool (direct or
      * indirect).
      */
-    private String resolveUtf8(final DataInput di) throws IOException {
-        int index = di.readUnsignedShort();
-        Object value = constantPool[index];
-        return (String) (value instanceof Integer ? constantPool[(Integer) value] : value);
+    private String resolveUtf8() throws IOException {
+        int index = buffer.readUnsignedShort();
+        return constantPool.getConstant(index);
     }
 
 }

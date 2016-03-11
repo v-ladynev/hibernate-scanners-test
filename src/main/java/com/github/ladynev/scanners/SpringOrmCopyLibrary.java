@@ -65,6 +65,7 @@ public class SpringOrmCopyLibrary extends ScannerAdapter {
 
         for (Resource resource : resources) {
             if (resource.isReadable()) {
+                // SimpleMetadataReader
                 MetadataReader reader = readerFactory.getMetadataReader(resource);
                 String className = reader.getClassMetadata().getClassName();
                 if (filter.match(reader, readerFactory)) {

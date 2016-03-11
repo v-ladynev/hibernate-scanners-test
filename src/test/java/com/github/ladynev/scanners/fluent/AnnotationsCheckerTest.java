@@ -10,7 +10,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.ladynev.scanners.persistent.FirstRootEntity;
+import com.github.ladynev.scanners.persistent.FirstRootEntityJar;
 import com.github.ladynev.scanners.persistent.NotEntity;
+import com.github.ladynev.scanners.persistent.NotEntityJar;
 
 /**
  *
@@ -32,8 +34,15 @@ public class AnnotationsCheckerTest {
         assertThat(check(NotEntity.class)).isFalse();
     }
 
+    @Test
+    public void checkInJar() throws Exception {
+        assertThat(check(FirstRootEntityJar.class)).isTrue();
+        assertThat(check(FirstRootEntityJar.NestedEntityJar.class)).isTrue();
+        assertThat(check(NotEntityJar.class)).isFalse();
+    }
+
     private static boolean check(Class<?> clazz) throws Exception {
-        return annotationChecker.detect(classAsStream(clazz));
+        return annotationChecker.check(classAsStream(clazz));
     }
 
     private static InputStream classAsStream(Class<?> clazz) {

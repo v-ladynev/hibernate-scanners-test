@@ -43,24 +43,24 @@ public class ScannersTest {
     private static final String OTHER_PACKAGE = "com.github.ladynev.scanners.other.persistent";
 
     private static final Class<?>[] SIMPLY_ENTITY_CLASSES = new Class<?>[] { FirstRootEntity.class,
-            FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
-            FirstSubpackageEntity.class, NestedEntity.class };
+        FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
+        FirstSubpackageEntity.class, NestedEntity.class };
 
     private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
-            FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
-            SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
+        FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
+        SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
 
     private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
             JAR_STATIC_ENTITY_CLASSES, Class.class);
 
     private static final Class<?>[] OTHER_ENTITY_CLASSES = new Class<?>[] { OtherRootEntity.class,
-            OtherRootEntity.OtherNestedEntity.class };
+        OtherRootEntity.OtherNestedEntity.class };
 
     private static final String JAR_DYNAMIC_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.dyn.persistent";
 
     private static final Class<?>[] JAR_DYNAMIC_ENTITY_CLASSES = new Class<?>[] {
-            FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
-            SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
+        FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
+        SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
 
     private static final Class<?>[] JAR_DYNAMIC_CLASSES = ObjectArrays.concat(
             JAR_DYNAMIC_ENTITY_CLASSES, NotJarDynEntity.class);
@@ -87,6 +87,7 @@ public class ScannersTest {
 
     // @Test
     public void springOrmLibrary() throws Exception {
+        // used a class parser
         scan(new SpringOrmLibrary());
     }
 
@@ -138,6 +139,7 @@ public class ScannersTest {
 
     // @Test
     public void infomasAslLibrary() throws Exception {
+        // used a class parser
         scan(new InfomasAslLibrary());
     }
 
@@ -159,6 +161,7 @@ public class ScannersTest {
     // @Test
     public void reflectionsLibrary() throws Exception {
         // ClasspathHelper working with loaders
+        // used Javassist
         scan(new ReflectionsLibrary());
     }
 
@@ -185,7 +188,6 @@ public class ScannersTest {
 
     // @Test
     public void annoventionsLibraryJar() throws Exception {
-        // used class parser
         scanInDynamicJar(new AnnoventionLibrary());
     }
 
@@ -208,7 +210,7 @@ public class ScannersTest {
                 elapsed));
 
         assertThat(classes).contains(ENTITY_CLASSES).contains(OTHER_ENTITY_CLASSES)
-                .doesNotContain(NotEntity.class, NotEntityJar.class);
+        .doesNotContain(NotEntity.class, NotEntityJar.class);
     }
 
     private static void scanInDynamicJar(IScanner scanner) throws Exception {

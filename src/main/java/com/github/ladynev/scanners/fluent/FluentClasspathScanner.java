@@ -20,7 +20,7 @@ import java.util.jar.Manifest;
  *
  * @author V.Ladynev
  */
-final class FluentClasspathScanner {
+public class FluentClasspathScanner {
 
     private final List<Class<?>> result = new ArrayList<Class<?>>();
 
@@ -30,11 +30,11 @@ final class FluentClasspathScanner {
 
     private List<String> resourcesToScan;
 
-    private ClassLoader[] loaders;
+    private List<ClassLoader> loaders;
 
     private final IClassAcceptor acceptor;
 
-    private FluentClasspathScanner(IClassAcceptor acceptor) {
+    public FluentClasspathScanner(IClassAcceptor acceptor) {
         this.acceptor = acceptor;
     }
 
@@ -42,11 +42,11 @@ final class FluentClasspathScanner {
         this.resourcesToScan = ClassUtils.packagesAsResourcePath(Arrays.asList(packagesToScan));
     }
 
-    public void setLoaders(ClassLoader[] loaders) throws IOException {
+    public void setLoaders(List<ClassLoader> loaders) {
         this.loaders = loaders;
     }
 
-    public List<Class<?>> scan() throws IOException {
+    public List<Class<?>> scan() throws Exception {
         for (UrlWrapper url : getUrls()) {
             scan(url);
         }
@@ -56,12 +56,12 @@ final class FluentClasspathScanner {
 
     private Set<UrlWrapper> getUrls() {
         List<ClassLoader> correctedLoaders = CollectionUtils.isEmpty(loaders) ? ClassUtils
-                .defaultClassLoaders() : Arrays.asList(loaders);
+                .defaultClassLoaders() : loaders;
                 return UrlExtractor.createForResources(resourcesToScan).usingLoaders(correctedLoaders)
                         .extract();
     }
 
-    private void scan(UrlWrapper url) throws IOException {
+    private void scan(UrlWrapper url) throws Exception {
         // scan each url once independent of the classloader
         if (!scanned.add(url)) {
             return;
@@ -74,7 +74,7 @@ final class FluentClasspathScanner {
         }
     }
 
-    private void scanFile(UrlWrapper url) throws IOException {
+    private void scanFile(UrlWrapper url) throws Exception {
         File file = url.getFile();
 
         if (!file.exists()) {
@@ -87,7 +87,7 @@ final class FluentClasspathScanner {
         }
     }
 
-    private void scanJar(UrlWrapper url) throws IOException {
+    private void scanJar(UrlWrapper url) throws Exception {
         JarFile jarFile = url.getJarFile();
 
         if (jarFile == null) {
@@ -107,7 +107,7 @@ final class FluentClasspathScanner {
         }
     }
 
-    private void scanJarFile(JarFile file, ClassLoader loader) throws IOException {
+    private void scanJarFile(JarFile file, ClassLoader loader) throws Exception {
         Enumeration<JarEntry> entries = file.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
@@ -119,12 +119,12 @@ final class FluentClasspathScanner {
         }
     }
 
-    private void scanDirectory(ClassLoader loader, File directory) throws IOException {
+    private void scanDirectory(ClassLoader loader, File directory) throws Exception {
         scanDirectory(directory, loader, StringUtils.EMPTY);
     }
 
     private void scanDirectory(File directory, ClassLoader classloader, String packagePrefix)
-            throws IOException {
+            throws Exception {
         File[] files = directory.listFiles();
         if (files == null) {
             // IO error, just skip the directory
@@ -172,7 +172,7 @@ final class FluentClasspathScanner {
         return result;
     }
 
-    private void addClass(String classResource, ClassLoader loader) throws IOException {
+    private void addClass(String classResource, ClassLoader loader) throws Exception {
         if (!scannedResources.add(classResource)) {
             return;
         }
@@ -190,7 +190,7 @@ final class FluentClasspathScanner {
 
     public interface IClassAcceptor {
 
-        boolean accept(String classResource, ClassLoader loader);
+        boolean accept(String classResource, ClassLoader loader) throws Exception;
     }
 
 }

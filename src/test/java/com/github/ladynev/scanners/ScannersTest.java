@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 
 import org.junit.Test;
 
+import com.github.ladynev.scanners.fluent.FluentHibernateLibrary;
 import com.github.ladynev.scanners.jar.dyn.persistent.FirstRootJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.NotJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.SecondRootJarDynEntity;

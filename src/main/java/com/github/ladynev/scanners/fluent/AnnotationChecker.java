@@ -44,7 +44,6 @@ public class AnnotationChecker {
 
     private static final int ARRAY = '[';
 
-    // The buffer is reused during the life cycle of this AnnotationDetector instance
     private final ClassFileBuffer buffer = new ClassFileBuffer();
 
     private final ConstantPool constantPool = new ConstantPool();
@@ -78,7 +77,7 @@ public class AnnotationChecker {
      */
     private boolean detect() throws IOException {
         readVersion();
-        constantPool.readEntries(buffer);
+        readConstantPool();
         readAccessFlags();
         readThisClass();
         readSuperClass();
@@ -91,6 +90,10 @@ public class AnnotationChecker {
     private void readVersion() throws IOException {
         // sequence: minor version, major version (argument_index is 1-based)
         buffer.skipBytes(4);
+    }
+
+    private void readConstantPool() throws IOException {
+        constantPool.readEntries(buffer);
     }
 
     private void readAccessFlags() throws IOException {
@@ -174,7 +177,7 @@ public class AnnotationChecker {
 
         for (int i = 0; i < count; ++i) {
             String descriptor = readAnnotation();
-            if (StringUtils.equal(descriptor, annotationDescriptor)) {
+            if (annotationDescriptor.equals(descriptor)) {
                 return true;
             }
         }

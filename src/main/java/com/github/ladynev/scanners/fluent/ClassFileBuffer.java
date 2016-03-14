@@ -41,31 +41,11 @@ final class ClassFileBuffer implements DataInput {
 
     private static final int BUFFER_SIZE_BYTES = 8 * 1024;
 
-    private byte[] buffer;
+    private byte[] buffer = new byte[BUFFER_SIZE_BYTES];
 
     private int size; // the number of significant bytes read
 
     private int pointer; // the "read pointer"
-
-    /**
-     * Create a new, empty {@code ClassFileBuffer} with the default initial capacity (8 kb).
-     */
-    ClassFileBuffer() {
-        this(BUFFER_SIZE_BYTES);
-    }
-
-    /**
-     * Create a new, empty {@code ClassFileBuffer} with the specified initial capacity. The initial
-     * capacity must be greater than zero. The internal buffer will grow automatically when a higher
-     * capacity is required. However, buffer resizing occurs extra overhead. So in good initial
-     * capacity is important in performance critical situations.
-     */
-    ClassFileBuffer(final int initialCapacity) {
-        if (initialCapacity < 1) {
-            throw new IllegalArgumentException("initialCapacity < 1: " + initialCapacity);
-        }
-        this.buffer = new byte[initialCapacity];
-    }
 
     /**
      * Clear and fill the buffer of this {@code ClassFileBuffer} with the supplied byte stream. The

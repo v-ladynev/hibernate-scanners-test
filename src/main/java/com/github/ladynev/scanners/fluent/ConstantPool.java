@@ -37,19 +37,27 @@ public class ConstantPool {
 
     private static final int CP_INVOKE_DYNAMIC = 18;
 
-    private Object[] constantPool;
+    private static final int BUFFER_SIZE = 8 * 1024;
+
+    private Object[] buffer = new Object[BUFFER_SIZE];
 
     private DataInput di;
 
     public void readEntries(DataInput di) throws IOException {
         this.di = di;
         int count = di.readUnsignedShort();
-        constantPool = new Object[count];
+        allocateBuffer(count);
         for (int i = 1; i < count; ++i) {
             if (readConstantPoolEntry(i)) {
                 // double slot
                 ++i;
             }
+        }
+    }
+
+    private void allocateBuffer(int size) {
+        if (buffer.length < size) {
+            buffer = new Object[size];
         }
     }
 
@@ -79,12 +87,12 @@ public class ConstantPool {
             di.skipBytes(8); // readLong() / readDouble()
             return true;
         case CP_UTF8:
-            constantPool[index] = di.readUTF();
+            buffer[index] = di.readUTF();
             return false;
         case CP_CLASS:
         case CP_STRING:
             // reference to CP_UTF8 entry. The referenced index can have a higher number!
-            constantPool[index] = di.readUnsignedShort();
+            buffer[index] = di.readUnsignedShort();
             return false;
         default:
             throw new ClassFormatError("Unkown tag value for constant pool entry: " + tag);
@@ -96,8 +104,8 @@ public class ConstantPool {
      * indirect).
      */
     public String getConstant(int index) {
-        Object value = constantPool[index];
-        return (String) (value instanceof Integer ? constantPool[(Integer) value] : value);
+        Object value = buffer[index];
+        return (String) (value instanceof Integer ? buffer[(Integer) value] : value);
     }
 
 }

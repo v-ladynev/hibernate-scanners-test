@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -38,8 +37,8 @@ public class FluentClasspathScanner {
         this.acceptor = acceptor;
     }
 
-    public void setPackagesToScan(String[] packagesToScan) {
-        this.resourcesToScan = ClassUtils.packagesAsResourcePath(Arrays.asList(packagesToScan));
+    public void setPackagesToScan(List<String> packagesToScan) {
+        this.resourcesToScan = ClassUtils.packagesAsResourcePath(packagesToScan);
     }
 
     public void setLoaders(List<ClassLoader> loaders) {
@@ -57,8 +56,8 @@ public class FluentClasspathScanner {
     private Set<UrlWrapper> getUrls() {
         List<ClassLoader> correctedLoaders = CollectionUtils.isEmpty(loaders) ? ClassUtils
                 .defaultClassLoaders() : loaders;
-                return UrlExtractor.createForResources(resourcesToScan).usingLoaders(correctedLoaders)
-                        .extract();
+        return UrlExtractor.createForResources(resourcesToScan).usingLoaders(correctedLoaders)
+                .extract();
     }
 
     private void scan(UrlWrapper url) throws Exception {

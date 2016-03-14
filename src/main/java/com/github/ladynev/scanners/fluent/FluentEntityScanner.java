@@ -1,6 +1,8 @@
 package com.github.ladynev.scanners.fluent;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -15,10 +17,11 @@ public final class FluentEntityScanner {
 
     private List<ClassLoader> loaders;
 
-    private final String[] packagesToScan;
+    private final List<String> packagesToScan;
 
     private FluentEntityScanner(String[] packagesToScan) {
-        this.packagesToScan = packagesToScan;
+        this.packagesToScan = packagesToScan == null ? Collections.<String> emptyList() : Arrays
+                .asList(CollectionUtils.correctOneNullToEmpty(packagesToScan));
     }
 
     /**
@@ -34,7 +37,7 @@ public final class FluentEntityScanner {
      * @return entity classes
      */
     public static List<Class<?>> scanPackages(String... packages) throws Exception {
-        return scanPackages(CollectionUtils.correctOneNullToEmpty(packages), null, Entity.class);
+        return scanPackages(packages, null, Entity.class);
     }
 
     static List<Class<?>> scanPackages(String[] packages, List<ClassLoader> loaders,

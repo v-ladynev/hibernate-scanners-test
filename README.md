@@ -1,3 +1,5 @@
+# hibernate-scanners-test
+
 It is just a test of various package scanning approaches to find persistent classes.
 
 Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/test/java/com/github/ladynev/scanners/ScannersTest.java)

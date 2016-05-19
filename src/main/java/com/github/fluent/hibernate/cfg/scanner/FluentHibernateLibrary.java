@@ -1,4 +1,4 @@
-package com.github.ladynev.scanners.fluent;
+package com.github.fluent.hibernate.cfg.scanner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,11 +14,12 @@ public class FluentHibernateLibrary extends ScannerAdapter {
     @Override
     public List<Class<?>> scan(String... packagesToScan) throws Exception {
         if (isTuned()) {
-            return FluentEntityScanner.scanPackages(packagesToScan, Arrays.asList(getLoader()),
-                    getAnnotation());
+            return EntityScanner
+                    .scanPackages(packagesToScan, Arrays.asList(getLoader()), getAnnotation())
+                    .result();
         }
 
-        return FluentEntityScanner.scanPackages(packagesToScan);
+        return EntityScanner.scanPackages(packagesToScan).result();
     }
 
 }

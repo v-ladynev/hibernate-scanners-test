@@ -13,7 +13,7 @@ import javax.persistence.Entity;
 
 import org.junit.Test;
 
-import com.github.ladynev.scanners.fluent.FluentHibernateLibrary;
+import com.github.fluent.hibernate.cfg.scanner.FluentHibernateLibrary;
 import com.github.ladynev.scanners.jar.dyn.persistent.FirstRootJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.NotJarDynEntity;
 import com.github.ladynev.scanners.jar.dyn.persistent.SecondRootJarDynEntity;
@@ -44,27 +44,27 @@ public class ScannersTest {
     private static final String OTHER_PACKAGE = "com.github.ladynev.scanners.other.persistent";
 
     private static final Class<?>[] SIMPLY_ENTITY_CLASSES = new Class<?>[] { FirstRootEntity.class,
-        FirstRootEntity.NestedEntity.class, SecondRootEntity.class,
-        FirstSubpackageEntity.class, NestedEntity.class };
+            FirstRootEntity.NestedEntity.class, SecondRootEntity.class, FirstSubpackageEntity.class,
+            NestedEntity.class };
 
     private static final Class<?>[] JAR_STATIC_ENTITY_CLASSES = new Class<?>[] {
-        FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
-        SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
+            FirstRootEntityJar.class, FirstRootEntityJar.NestedEntityJar.class,
+            SecondRootEntityJar.class, FirstSubpackageEntityJar.class, NestedEntityJar.class };
 
     private static final Class<?>[] ENTITY_CLASSES = ObjectArrays.concat(SIMPLY_ENTITY_CLASSES,
             JAR_STATIC_ENTITY_CLASSES, Class.class);
 
     private static final Class<?>[] OTHER_ENTITY_CLASSES = new Class<?>[] { OtherRootEntity.class,
-        OtherRootEntity.OtherNestedEntity.class };
+            OtherRootEntity.OtherNestedEntity.class };
 
     private static final String JAR_DYNAMIC_ROOT_PACKAGE = "com.github.ladynev.scanners.jar.dyn.persistent";
 
     private static final Class<?>[] JAR_DYNAMIC_ENTITY_CLASSES = new Class<?>[] {
-        FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
-        SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
+            FirstRootJarDynEntity.class, FirstRootJarDynEntity.NestedJarDynEntity.class,
+            SecondRootJarDynEntity.class, FirstSubpackageJarDynEntity.class };
 
-    private static final Class<?>[] JAR_DYNAMIC_CLASSES = ObjectArrays.concat(
-            JAR_DYNAMIC_ENTITY_CLASSES, NotJarDynEntity.class);
+    private static final Class<?>[] JAR_DYNAMIC_CLASSES = ObjectArrays
+            .concat(JAR_DYNAMIC_ENTITY_CLASSES, NotJarDynEntity.class);
 
     // @Test
     public void guavaLibrary() throws Exception {
@@ -207,11 +207,11 @@ public class ScannersTest {
         long begin = System.currentTimeMillis();
         List<Class<?>> classes = scanner.scan(ROOT_PACKAGE, OTHER_PACKAGE);
         long elapsed = System.currentTimeMillis() - begin;
-        System.out.println(String.format("%s: %d millis", scanner.getClass().getSimpleName(),
-                elapsed));
+        System.out.println(
+                String.format("%s: %d millis", scanner.getClass().getSimpleName(), elapsed));
 
         assertThat(classes).contains(ENTITY_CLASSES).contains(OTHER_ENTITY_CLASSES)
-        .doesNotContain(NotEntity.class, NotEntityJar.class);
+                .doesNotContain(NotEntity.class, NotEntityJar.class);
     }
 
     private static void scanInDynamicJar(IScanner scanner) throws Exception {
@@ -235,8 +235,8 @@ public class ScannersTest {
         scanner.tune(loader, entityAnnotation);
         List<Class<?>> classes = scanner.scan(JAR_DYNAMIC_ROOT_PACKAGE);
 
-        assertThat(classes).contains(reload(loader, JAR_DYNAMIC_ENTITY_CLASSES)).doesNotContain(
-                reload(loader, NotJarDynEntity.class));
+        assertThat(classes).contains(reload(loader, JAR_DYNAMIC_ENTITY_CLASSES))
+                .doesNotContain(reload(loader, NotJarDynEntity.class));
 
         assertThat(classes).doesNotContain(JAR_DYNAMIC_ENTITY_CLASSES);
     }

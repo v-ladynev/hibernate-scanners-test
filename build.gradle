@@ -2,8 +2,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
@@ -11,11 +11,12 @@ repositories {
 }
 
 dependencies {
-    compile 'org.hibernate:hibernate-core:5.0.7.Final'
+    compile 'org.hibernate:hibernate-core:5.1.0.Final'
 
     compile 'org.springframework:spring-context:4.2.2.RELEASE'
     compile 'org.springframework:spring-orm:4.2.2.RELEASE'
 
+    compile 'com.github.v-ladynev:fluent-hibernate-core:0.2.0'
     compile 'com.google.guava:guava:19.0'
     compile 'io.github.lukehutch:fast-classpath-scanner:1.9.17'
     compile 'eu.infomas:annotation-detector:3.0.5'

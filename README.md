@@ -17,7 +17,7 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 [Hibernate Mapping Package](http://stackoverflow.com/questions/1413190/hibernate-mapping-package)
 
 ### Libraries
-[fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) — []()
+[fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) — [FluentHibernateLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/fluent/hibernate/cfg/scanner/FluentHibernateLibrary.java)
 
 [google/guava](https://github.com/google/guava) (using `ClassPath`) — [GuavaLibrary.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/main/java/com/github/ladynev/scanners/GuavaLibrary.java)
 

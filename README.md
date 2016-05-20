@@ -6,8 +6,8 @@ Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanne
 
 ### fluent-hibernate
 
-If you are looking for a quick scanning approach without additional dependences, you can try [fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) library (you will not need to have other jars, except the library) .
-It has some useful features for Hibernate 5 and Hibernate 4, including entities scanning, a Hibernate 5 implicit naming strategy, a nested transformer and others.
+If you are looking for a quick scanning approach without additional dependencies, you can try [fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) library (you will not need to have other jars, except the library) .
+Apart this, it has some useful features for Hibernate 5 and Hibernate 4, including entities scanning, a Hibernate 5 implicit naming strategy, a nested transformer and others.
 
 Just download the library from the project page: [fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) and use [EntityScanner](https://github.com/v-ladynev/fluent-hibernate/blob/master/fluent-hibernate-core/src/main/java/com/github/fluent/hibernate/cfg/scanner/EntityScanner.java):
 

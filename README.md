@@ -1,8 +1,37 @@
 # hibernate-scanners-test
 
-It is just a test of various package scanning approaches to find persistent classes.
+It is just a test of various entities scanning approaches for Hibernate.
 
 Test class — [ScannersTest.java](https://github.com/v-ladynev/hibernate-scanners-test/blob/master/src/test/java/com/github/ladynev/scanners/ScannersTest.java)
+
+### fluent-hibernate
+
+If you are looking for a quick scanning approach without additional dependences, you can try [fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) library.
+It has some useful features for Hibernate 5 and Hibernate 4, including entities scanning, a Hibernate 5 implicit naming strategy, a nested transformer and others.
+
+Just download the library from the project page: [fluent-hibernate](https://github.com/v-ladynev/fluent-hibernate) and use [EntityScanner](https://github.com/v-ladynev/fluent-hibernate/blob/master/fluent-hibernate-core/src/main/java/com/github/fluent/hibernate/cfg/scanner/EntityScanner.java):
+
+_For Hibernate 4 and Hibernate 5:_
+```Java
+    Configuration configuration = new Configuration();
+    EntityScanner.scanPackages("my.com.entities", "my.com.other.entities")
+        .addTo(configuration);
+    SessionFactory sessionFactory = configuration.buildSessionFactory();
+```
+
+_Using a new Hibernate 5 bootstrapping API:_
+```Java
+    List<Class<?>> classes = EntityScanner
+            .scanPackages("my.com.entities", "my.com.other.entities").result();
+
+    MetadataSources metadataSources = new MetadataSources();
+    for (Class<?> annotatedClass : classes) {
+        metadataSources.addAnnotatedClass(annotatedClass);
+    }
+
+    SessionFactory sessionFactory = metadataSources.buildMetadata()
+        .buildSessionFactory();
+```
 
 ### Links
 
